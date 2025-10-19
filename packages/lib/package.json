@@ -29,12 +29,18 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
+    "classnames": "*",
     "react": "*",
-    "react-dom": "*",
-    "classnames": "*"
+    "react-dom": "*"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@ebay/nice-form-react": "^2.0.3",
+    "@jswork/react-ant-form-schema": "^1.0.3",
+    "antd": "^5.27.5"
   }
 }
