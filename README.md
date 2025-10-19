@@ -1,2 +1,2 @@
-# react-native-country-code-picker
-> Country code picker for react native
+# react-ant-resource-form
+> Antd form builder for resource form.

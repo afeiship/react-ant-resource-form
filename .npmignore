@@ -1,7 +1,0 @@
-.idea
-.DS_Store
-**/npm-debug.log
-**/node_modules
-test
-build
-gulpfile.js

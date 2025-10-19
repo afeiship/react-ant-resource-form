@@ -1,18 +1,20 @@
 {
-  "name": "react-native-country-code-picker",
-  "version": "0.0.1",
-  "description": "Country code picker for react native",
-  "homepage": "https://github.com/afeiship/react-native-country-code-picker",
-  "author": {
-    "name": "afei",
-    "email": "1290657123@qq.com"
-  },
-  "main": "src/index.js",
-  "license": "MIT",
-  "dependencies": {
-    "prop-types": "^15.6.1",
-    "react": "^16.4.1",
-    "react-native": "^0.55.4",
-    "react-native-alphabet-list-view": "github:afeiship/react-native-alphabet-list-view"
+  "name": "react-ant-resource-form",
+  "version": "1.0.0",
+  "description": "Antd form builder for resource form.",
+  "homepage": "https://js.work",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "cd packages/example && yarn run dev",
+    "predocs": "rm -rf docs && node scripts/markdown.js",
+    "docs": "cd packages/example && yarn run build",
+    "postdocs": "cp -R packages/example/dist docs",
+    "preln:build": "yarn run docs",
+    "ln:build": "cd packages/lib && yarn run build",
+    "ln:publish": "cd packages/lib && yarn run release"
   }
 }
