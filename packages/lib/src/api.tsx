@@ -99,7 +99,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   useEffect(() => {
     if (isEdit) {
       const payload = { id: params!.id };
-      const _payload = handleStateRequest({ stage: 'update', payload });
+      const _payload = handleStateRequest({ stage: 'show', payload });
       nx.$api[resourceShow](_payload)
         .then((res) => {
           form.setFieldsValue(res);
