@@ -46,15 +46,19 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const handleFinish = (values) => {
     setLoading(true);
     if (isEdit) {
-      context[resourceEdit]({ id: params!.id, ...values }).then((res) => {
-        message.success(t('update_success'));
-        handleStateResponse({ stage: 'update', data: res });
-      });
+      context[resourceEdit]({ id: params!.id, ...values })
+        .then((res) => {
+          message.success(t('update_success'));
+          handleStateResponse({ stage: 'update', data: res });
+        })
+        .finally(() => setLoading(false));
     } else {
-      context[resourceCreate](values).then((res) => {
-        message.success(t('create_success'));
-        handleStateResponse({ stage: 'create', data: res });
-      });
+      context[resourceCreate](values)
+        .then((res) => {
+          message.success(t('create_success'));
+          handleStateResponse({ stage: 'create', data: res });
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -62,10 +66,12 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   useEffect(() => {
     if (isEdit) {
       setLoading(true);
-      context[resourceShow]({ id: params!.id }).then((res) => {
-        form.setFieldsValue(res);
-        handleStateResponse({ stage: 'show', data: res });
-      });
+      context[resourceShow]({ id: params!.id })
+        .then((res) => {
+          form.setFieldsValue(res);
+          handleStateResponse({ stage: 'show', data: res });
+        })
+        .finally(() => setLoading(false));
     }
   }, [isEdit]);
 
