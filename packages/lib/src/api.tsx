@@ -28,10 +28,18 @@ export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
 
 const locales = {
   'zh-CN': {
+    create: '创建',
+    update: '保存',
+    create_title: '创建',
+    update_title: '更新',
     create_success: '创建成功',
     update_success: '更新成功',
   },
   'en-US': {
+    create: 'Create',
+    update: 'Save',
+    create_title: 'Create',
+    update_title: 'Update',
     create_success: 'Create success',
     update_success: 'Update success',
   },
@@ -101,7 +109,19 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
     }
   }, [isEdit]);
 
-  return <ReactAntResourceForm loading={loading} form={form} onFinish={handleFinish} {...rest} />;
+  const okText = isEdit ? t('update') : t('create');
+  const title = isEdit ? t('update_title') : t('create_title');
+
+  return (
+    <ReactAntResourceForm
+      loading={loading}
+      form={form}
+      onFinish={handleFinish}
+      okText={okText}
+      title={title}
+      {...rest}
+    />
+  );
 };
 
 export default ReactAntResourceFormApi;
