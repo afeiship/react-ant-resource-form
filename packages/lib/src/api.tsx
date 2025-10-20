@@ -3,7 +3,7 @@ import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 
 type StagePayload = {
-  stage: 'create' | 'update';
+  stage: 'show' | 'create' | 'update';
   payload: any;
 };
 
@@ -12,7 +12,7 @@ type StageData = {
   data: any;
 };
 
-type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
+export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   context: any;
   lang?: string;
   params?: Record<string, any>;

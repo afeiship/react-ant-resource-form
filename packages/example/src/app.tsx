@@ -1,4 +1,4 @@
-import ReactAntResourceForm from '@jswork/react-ant-resource-form/src/main';
+import { ReactAntResourceForm } from '@jswork/react-ant-resource-form/src/main';
 import '@jswork/react-ant-form-schema/src/setup';
 import '@jswork/react-ant-resource-form/src/style.scss';
 import { NiceFormMeta } from '@ebay/nice-form-react/types';
