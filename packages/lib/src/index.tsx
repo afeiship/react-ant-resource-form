@@ -1,15 +1,14 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
 import React, { FC } from 'react';
-import { Button, Card, CardProps, Form, Space } from 'antd';
+import { Button, Card, CardProps, Space } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
-import { NiceFormMeta } from '@ebay/nice-form-react';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 
 export type ReactAntResourceFormProps = {
-  meta: NiceFormMeta;
   lang?: string;
   loading?: boolean;
+  size?: CardProps['size'];
   extra?: CardProps['extra'];
   title?: CardProps['title'];
 } & ReactAntdFormSchemaProps;
@@ -31,11 +30,10 @@ const defaultProps = {
 };
 
 const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
-  const { className, meta, children, lang, title, loading, extra, ...rest } = {
+  const { className, meta, children, lang, title, loading, extra, size, ...rest } = {
     ...defaultProps,
     ...props,
   };
-  const [form] = Form.useForm();
   const t = (key: string) => locales[lang][key];
   const handleBack = () => history.back();
   const _extra = extra || (
@@ -57,11 +55,12 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
   return (
     <Card
       title={title}
+      size={size}
       loading={loading}
       data-component={CLASS_NAME}
       className={cx(CLASS_NAME, className)}
       extra={_extra}>
-      <ReactAntdFormSchema form={form} meta={meta} {...rest}>
+      <ReactAntdFormSchema meta={meta} {...rest}>
         {_children}
       </ReactAntdFormSchema>
     </Card>
