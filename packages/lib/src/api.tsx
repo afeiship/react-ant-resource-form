@@ -2,10 +2,16 @@ import React, { FC, useEffect } from 'react';
 import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 
+type Payload = {
+  action: 'show' | 'create' | 'update';
+  data: any;
+};
+
 type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   context: any;
   lang?: string;
   params?: Record<string, any>;
+  onResponse?: (res: Payload) => void;
 };
 
 const locales = {
@@ -24,7 +30,7 @@ const defaultProps = {
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, context, params, lang, ...rest } = { ...defaultProps, ...props };
+  const { name, context, params, lang, onResponse, ...rest } = { ...defaultProps, ...props };
   const resourceEdit = `${name}_update`;
   const resourceCreate = `${name}_create`;
   const resourceShow = `${name}_show`;
@@ -35,10 +41,12 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
     if (isEdit) {
       context[resourceEdit]({ id: params!.id, ...values }).then((res) => {
         message.success(t('update_success'));
+        onResponse?.({ action: 'update', data: res });
       });
     } else {
       context[resourceCreate](values).then((res) => {
         message.success(t('create_success'));
+        onResponse?.({ action: 'create', data: res });
       });
     }
   };
@@ -48,6 +56,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
     if (isEdit) {
       context[resourceShow]({ id: params!.id }).then((res) => {
         form.setFieldsValue(res);
+        onResponse?.({ action: 'show', data: res });
       });
     }
   }, [isEdit]);
