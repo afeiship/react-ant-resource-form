@@ -107,7 +107,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
         })
         .finally(() => setLoading(false));
     }
-  }, [isEdit]);
+  }, [isEdit, params?.id]);
 
   const okText = isEdit ? t('update') : t('create');
   const title = isEdit ? t('update_title') : t('create_title');
