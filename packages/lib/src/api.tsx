@@ -2,7 +2,12 @@ import React, { FC, useEffect, useState } from 'react';
 import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 
-type Payload = {
+type StagePayload = {
+  stage: 'create' | 'update';
+  payload: any;
+};
+
+type StageData = {
   stage: 'show' | 'create' | 'update';
   data: any;
 };
@@ -11,7 +16,8 @@ type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   context: any;
   lang?: string;
   params?: Record<string, any>;
-  onResponse?: (res: Payload) => void;
+  onRequest?: (payload: StagePayload) => any;
+  onResponse?: (res: StageData) => void;
 };
 
 const locales = {
@@ -30,7 +36,11 @@ const defaultProps = {
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, context, params, lang, onResponse, ...rest } = { ...defaultProps, ...props };
+  const { name, context, params, lang, onRequest, onResponse, ...rest } = {
+    ...defaultProps,
+    ...props,
+  };
+
   const resourceEdit = `${name}_update`;
   const resourceCreate = `${name}_create`;
   const resourceShow = `${name}_show`;
@@ -38,22 +48,31 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const isEdit = Boolean(params?.id);
   const t = (key: string) => locales[lang!][key];
   const [loading, setLoading] = useState(false);
-  const handleStateResponse = (res: Payload) => {
+  const handleStateRequest = (payload: StagePayload) => {
+    setLoading(true);
+    return onRequest?.(payload) || payload;
+  };
+  const handleStateResponse = (res: StageData) => {
     onResponse?.(res);
     setLoading(false);
   };
 
   const handleFinish = (values) => {
-    setLoading(true);
     if (isEdit) {
-      context[resourceEdit]({ id: params!.id, ...values })
+      const payload = { id: params!.id, ...values };
+      const _payload = handleStateRequest({ stage: 'update', payload });
+
+      context[resourceEdit](_payload)
         .then((res) => {
           message.success(t('update_success'));
           handleStateResponse({ stage: 'update', data: res });
         })
         .finally(() => setLoading(false));
     } else {
-      context[resourceCreate](values)
+      const payload = { ...values };
+      const _payload = handleStateRequest({ stage: 'create', payload });
+
+      context[resourceCreate](_payload)
         .then((res) => {
           message.success(t('create_success'));
           handleStateResponse({ stage: 'create', data: res });
@@ -65,8 +84,9 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   // init detail
   useEffect(() => {
     if (isEdit) {
-      setLoading(true);
-      context[resourceShow]({ id: params!.id })
+      const payload = { id: params!.id };
+      const _payload = handleStateRequest({ stage: 'update', payload });
+      context[resourceShow](_payload)
         .then((res) => {
           form.setFieldsValue(res);
           handleStateResponse({ stage: 'show', data: res });
