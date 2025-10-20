@@ -1,19 +1,18 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
-import React, { FC, ReactNode } from 'react';
-import { Button, Card, CardProps, Form, FormProps, Space } from 'antd';
-import ReactAntdFormSchema from '@jswork/react-ant-form-schema';
+import React, { FC } from 'react';
+import { Button, Card, CardProps, Form, Space } from 'antd';
+import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { NiceFormMeta } from '@ebay/nice-form-react';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 
 export type ReactAntResourceFormProps = {
   meta: NiceFormMeta;
   lang?: string;
-  header?: ReactNode;
   loading?: boolean;
   extra?: CardProps['extra'];
   title?: CardProps['title'];
-} & FormProps;
+} & ReactAntdFormSchemaProps;
 
 const CLASS_NAME = 'react-ant-resource-form';
 const locales = {
@@ -32,7 +31,7 @@ const defaultProps = {
 };
 
 const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
-  const { className, children, meta, lang, header, title, loading, extra, ...rest } = {
+  const { className, meta, children, lang, title, loading, extra, ...rest } = {
     ...defaultProps,
     ...props,
   };
@@ -44,6 +43,16 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
       {t('back')}
     </Button>
   );
+  const _children = children || (
+    <Space>
+      <Button htmlType="submit" type="primary" icon={<SaveOutlined />}>
+        {t('submit')}
+      </Button>
+      <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
+        {t('back')}
+      </Button>
+    </Space>
+  );
 
   return (
     <Card
@@ -53,17 +62,8 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
       className={cx(CLASS_NAME, className)}
       extra={_extra}>
       <ReactAntdFormSchema form={form} meta={meta} {...rest}>
-        {header}
-        <Space>
-          <Button htmlType="submit" type="primary" icon={<SaveOutlined />}>
-            {t('submit')}
-          </Button>
-          <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
-            {t('back')}
-          </Button>
-        </Space>
+        {_children}
       </ReactAntdFormSchema>
-      {children as ReactNode}
     </Card>
   );
 };
