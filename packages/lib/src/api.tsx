@@ -54,9 +54,9 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const isEdit = Boolean(params?.id);
   const t = (key: string) => locales[lang!][key];
   const [loading, setLoading] = useState(false);
-  const handleStateRequest = (payload: StagePayload) => {
+  const handleStateRequest = (stagePayload: StagePayload) => {
     setLoading(true);
-    return onRequest?.(payload) || payload;
+    return onRequest?.(stagePayload) || stagePayload.payload;
   };
   const handleStateResponse = (res: StageData) => {
     onResponse?.(res);
