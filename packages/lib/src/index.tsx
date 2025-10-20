@@ -11,7 +11,8 @@ export type ReactAntResourceFormProps = {
   lang?: string;
   header?: ReactNode;
   loading?: boolean;
-  cardProps?: Omit<CardProps, 'title' | 'loading'>;
+  extra?: CardProps['extra'];
+  title?: CardProps['title'];
 } & FormProps;
 
 const CLASS_NAME = 'react-ant-resource-form';
@@ -31,33 +32,28 @@ const defaultProps = {
 };
 
 const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
-  const { className, children, meta, lang, header, loading, cardProps, ...rest } = {
+  const { className, children, meta, lang, header, title, loading, extra, ...rest } = {
     ...defaultProps,
     ...props,
   };
   const [form] = Form.useForm();
   const t = (key: string) => locales[lang][key];
-  const handleBack = () => {
-    history.back();
-  };
-
-  const handleFinish = (values: any) => {
-    console.log('values: ', values);
-  };
+  const handleBack = () => history.back();
+  const _extra = extra || (
+    <Button size="small" icon={<ArrowLeftOutlined />} onClick={handleBack}>
+      {t('back')}
+    </Button>
+  );
 
   return (
     <Card
+      title={title}
       loading={loading}
       data-component={CLASS_NAME}
       className={cx(CLASS_NAME, className)}
-      extra={
-        <Button size="small" icon={<ArrowLeftOutlined />} onClick={handleBack}>
-          {t('back')}
-        </Button>
-      }
-      {...cardProps}>
-      {header}
-      <ReactAntdFormSchema form={form} meta={meta} onFinish={handleFinish} {...rest}>
+      extra={_extra}>
+      <ReactAntdFormSchema form={form} meta={meta} {...rest}>
+        {header}
         <Space>
           <Button htmlType="submit" type="primary" icon={<SaveOutlined />}>
             {t('submit')}
