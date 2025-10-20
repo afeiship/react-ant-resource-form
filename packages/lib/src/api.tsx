@@ -1,6 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
+import nx from '@jswork/next';
+
+declare global {
+  interface NxStatic {
+    $api: Record<string, any>;
+  }
+}
 
 type StagePayload = {
   stage: 'show' | 'create' | 'update';
@@ -13,7 +20,6 @@ type StageData = {
 };
 
 export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
-  context: any;
   lang?: string;
   params?: Record<string, any>;
   onRequest?: (payload: StagePayload) => any;
@@ -36,7 +42,7 @@ const defaultProps = {
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, context, params, lang, onRequest, onResponse, ...rest } = {
+  const { name, params, lang, onRequest, onResponse, ...rest } = {
     ...defaultProps,
     ...props,
   };
@@ -62,7 +68,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
       const payload = { id: params!.id, ...values };
       const _payload = handleStateRequest({ stage: 'update', payload });
 
-      context[resourceEdit](_payload)
+      nx.$api[resourceEdit](_payload)
         .then((res) => {
           message.success(t('update_success'));
           handleStateResponse({ stage: 'update', data: res });
@@ -72,7 +78,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
       const payload = { ...values };
       const _payload = handleStateRequest({ stage: 'create', payload });
 
-      context[resourceCreate](_payload)
+      nx.$api[resourceCreate](_payload)
         .then((res) => {
           message.success(t('create_success'));
           handleStateResponse({ stage: 'create', data: res });
@@ -86,7 +92,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
     if (isEdit) {
       const payload = { id: params!.id };
       const _payload = handleStateRequest({ stage: 'update', payload });
-      context[resourceShow](_payload)
+      nx.$api[resourceShow](_payload)
         .then((res) => {
           form.setFieldsValue(res);
           handleStateResponse({ stage: 'show', data: res });
