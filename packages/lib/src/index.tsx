@@ -13,7 +13,7 @@ export type ReactAntResourceFormProps = {
   backText?: string;
   okProps?: ButtonProps;
   backProps?: ButtonProps;
-  classNames: CardProps['classNames'];
+  classNames?: CardProps['classNames'];
   size?: CardProps['size'];
   extra?: CardProps['extra'];
   title?: CardProps['title'];
