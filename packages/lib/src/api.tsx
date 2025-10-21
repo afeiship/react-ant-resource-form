@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 import nx from '@jswork/next';
+import { useKeyboardSave } from './hooks';
 
 declare global {
   interface NxStatic {
@@ -23,6 +24,7 @@ type StageData = {
 export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   lang?: string;
   params?: Record<string, any>;
+  disableHotkeySave?: boolean;
   transformRequest?: (payload: StagePayload) => any;
   transformResponse?: (res: StageData) => any;
 };
@@ -48,10 +50,11 @@ const locales = {
 
 const defaultProps = {
   lang: 'zh-CN',
+  disableHotkeySave: false,
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, params, lang, transformRequest, transformResponse, ...rest } = {
+  const { name, params, lang, transformRequest, transformResponse, disableHotkeySave, ...rest } = {
     ...defaultProps,
     ...props,
   };
@@ -67,6 +70,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
     setLoading(true);
     return transformRequest?.(stagePayload) || stagePayload.payload;
   };
+
   const handleStateResponse = (res: StageData) => {
     setLoading(false);
     nx.$event?.emit?.(`${name}:refetch`);
@@ -96,6 +100,11 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
         .finally(() => setLoading(false));
     }
   };
+
+  // hotkey save
+  useKeyboardSave(() => {
+    if (!disableHotkeySave) form.submit();
+  });
 
   // init detail
   useEffect(() => {
