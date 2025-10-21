@@ -6,6 +6,7 @@ import nx from '@jswork/next';
 declare global {
   interface NxStatic {
     $api: Record<string, any>;
+    $event: any;
   }
 }
 
@@ -68,6 +69,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   };
   const handleStateResponse = (res: StageData) => {
     setLoading(false);
+    nx.$event?.emit?.(`${name}:refetch`);
     return transformResponse?.(res) || res.data;
   };
 
