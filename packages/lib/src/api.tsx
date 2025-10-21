@@ -3,6 +3,7 @@ import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 import nx from '@jswork/next';
 import { useKeyboardSave } from './hooks';
+import { API_FORM_LOCALES } from './locales';
 
 declare global {
   interface NxStatic {
@@ -29,25 +30,6 @@ export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   transformResponse?: (res: StageData) => any;
 };
 
-const locales = {
-  'zh-CN': {
-    create: '创建',
-    update: '保存',
-    create_title: '创建',
-    update_title: '更新',
-    create_success: '创建成功',
-    update_success: '更新成功',
-  },
-  'en-US': {
-    create: 'Create',
-    update: 'Save',
-    create_title: 'Create',
-    update_title: 'Update',
-    create_success: 'Create success',
-    update_success: 'Update success',
-  },
-};
-
 const defaultProps = {
   lang: 'zh-CN',
   disableHotkeySave: false,
@@ -64,7 +46,7 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const resourceShow = `${name}_show`;
   const [form] = Form.useForm();
   const isEdit = Boolean(params?.id);
-  const t = (key: string) => locales[lang!][key];
+  const t = (key: string) => API_FORM_LOCALES[lang!][key];
   const [loading, setLoading] = useState(false);
   const handleStateRequest = (stagePayload: StagePayload) => {
     setLoading(true);

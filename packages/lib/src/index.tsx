@@ -4,6 +4,7 @@ import React, { FC } from 'react';
 import { Button, ButtonProps, Card, CardProps, Space } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { BASIC_FORM_LOCALES } from './locales';
 
 export type ReactAntResourceFormProps = {
   lang?: string;
@@ -18,16 +19,6 @@ export type ReactAntResourceFormProps = {
 } & ReactAntdFormSchemaProps;
 
 const CLASS_NAME = 'react-ant-resource-form';
-const locales = {
-  'zh-CN': {
-    submit: '提交',
-    back: '返回',
-  },
-  'en-US': {
-    submit: 'Submit',
-    back: 'Back',
-  },
-};
 
 const defaultProps = {
   lang: 'zh-CN',
@@ -52,13 +43,15 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
     ...defaultProps,
     ...props,
   };
-  const t = (key: string) => locales[lang][key];
+
+  const t = (key: string) => BASIC_FORM_LOCALES[lang][key];
   const handleBack = () => history.back();
   const _extra = extra || (
     <Button size="small" icon={<ArrowLeftOutlined />} onClick={handleBack} {...backProps}>
       {backText || t('back')}
     </Button>
   );
+
   const _children = children || (
     <Space>
       <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
