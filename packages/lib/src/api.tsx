@@ -22,8 +22,8 @@ type StageData = {
 export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   lang?: string;
   params?: Record<string, any>;
-  onRequest?: (payload: StagePayload) => any;
-  onResponse?: (res: StageData) => void;
+  transformRequest?: (payload: StagePayload) => any;
+  transformResponse?: (res: StageData) => any;
 };
 
 const locales = {
@@ -50,7 +50,7 @@ const defaultProps = {
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, params, lang, onRequest, onResponse, ...rest } = {
+  const { name, params, lang, transformRequest, transformResponse, ...rest } = {
     ...defaultProps,
     ...props,
   };
@@ -64,11 +64,11 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const [loading, setLoading] = useState(false);
   const handleStateRequest = (stagePayload: StagePayload) => {
     setLoading(true);
-    return onRequest?.(stagePayload) || stagePayload.payload;
+    return transformRequest?.(stagePayload) || stagePayload.payload;
   };
   const handleStateResponse = (res: StageData) => {
-    onResponse?.(res);
     setLoading(false);
+    return transformResponse?.(res) || res.data;
   };
 
   const handleFinish = (values) => {
@@ -102,8 +102,8 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
       const _payload = handleStateRequest({ stage: 'show', payload });
       nx.$api[resourceShow](_payload)
         .then((res) => {
-          form.setFieldsValue(res);
-          handleStateResponse({ stage: 'show', data: res });
+          const data = handleStateResponse({ stage: 'show', data: res });
+          form.setFieldsValue(data);
         })
         .finally(() => setLoading(false));
     }
