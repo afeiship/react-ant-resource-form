@@ -13,6 +13,7 @@ export type ReactAntResourceFormProps = {
   backText?: string;
   okProps?: ButtonProps;
   backProps?: ButtonProps;
+  classNames: CardProps['classNames'];
   size?: CardProps['size'];
   extra?: CardProps['extra'];
   title?: CardProps['title'];
@@ -38,6 +39,7 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
     backText,
     okProps,
     backProps,
+    classNames,
     ...rest
   } = {
     ...defaultProps,
@@ -68,6 +70,7 @@ const ReactAntResourceForm: FC<ReactAntResourceFormProps> = (props) => {
       title={title}
       size={size}
       loading={loading}
+      classNames={classNames}
       data-component={CLASS_NAME}
       className={cx(CLASS_NAME, className)}
       extra={_extra}>
