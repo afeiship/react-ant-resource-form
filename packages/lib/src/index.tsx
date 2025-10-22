@@ -1,7 +1,7 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
 import React, { Component } from 'react';
-import { Button, ButtonProps, Card, CardProps, Space, Form, message } from 'antd';
+import { Button, ButtonProps, Card, CardProps, Space, Form, message, Spin } from 'antd';
 import type { FormInstance } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
@@ -190,7 +190,6 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     const curId = this.props.params?.id;
     // re-init when id changed or from create -> edit
     if (prevId !== curId) {
-      console.log('render?');
       this.initDetailIfNeeded();
     }
   }
@@ -246,20 +245,23 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       ...rest
     } = this.props;
 
-    console.log('render...', this.formRef?.current);
-
     return (
       <Card
         title={this.titleView}
         extra={this.extraView}
         size={size}
-        loading={this.state.loading}
         classNames={classNames}
         data-component={CLASS_NAME}
         className={cx(CLASS_NAME, className)}>
-        <ReactAntdFormSchema meta={meta} ref={this.formRef} onFinish={this.handleFinish} {...rest}>
-          {this.childrenView}
-        </ReactAntdFormSchema>
+        <Spin spinning={this.state.loading}>
+          <ReactAntdFormSchema
+            meta={meta}
+            ref={this.formRef}
+            onFinish={this.handleFinish}
+            {...rest}>
+            {this.childrenView}
+          </ReactAntdFormSchema>
+        </Spin>
       </Card>
     );
   }
