@@ -2,6 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 import ReactAntResourceForm, { ReactAntResourceFormProps } from '.';
 import { Form, message } from 'antd';
 import nx from '@jswork/next';
+import { useKeyboardSave } from './hooks';
+import { API_FORM_LOCALES } from './locales';
 
 declare global {
   interface NxStatic {
@@ -23,35 +25,18 @@ type StageData = {
 export type ReactAntResourceFormApiProps = ReactAntResourceFormProps & {
   lang?: string;
   params?: Record<string, any>;
+  disableHotkeySave?: boolean;
   transformRequest?: (payload: StagePayload) => any;
   transformResponse?: (res: StageData) => any;
 };
 
-const locales = {
-  'zh-CN': {
-    create: '创建',
-    update: '保存',
-    create_title: '创建',
-    update_title: '更新',
-    create_success: '创建成功',
-    update_success: '更新成功',
-  },
-  'en-US': {
-    create: 'Create',
-    update: 'Save',
-    create_title: 'Create',
-    update_title: 'Update',
-    create_success: 'Create success',
-    update_success: 'Update success',
-  },
-};
-
 const defaultProps = {
   lang: 'zh-CN',
+  disableHotkeySave: false,
 };
 
 const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
-  const { name, params, lang, transformRequest, transformResponse, ...rest } = {
+  const { name, params, lang, transformRequest, transformResponse, disableHotkeySave, ...rest } = {
     ...defaultProps,
     ...props,
   };
@@ -61,12 +46,13 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
   const resourceShow = `${name}_show`;
   const [form] = Form.useForm();
   const isEdit = Boolean(params?.id);
-  const t = (key: string) => locales[lang!][key];
+  const t = (key: string) => API_FORM_LOCALES[lang!][key];
   const [loading, setLoading] = useState(false);
   const handleStateRequest = (stagePayload: StagePayload) => {
     setLoading(true);
     return transformRequest?.(stagePayload) || stagePayload.payload;
   };
+
   const handleStateResponse = (res: StageData) => {
     setLoading(false);
     nx.$event?.emit?.(`${name}:refetch`);
@@ -96,6 +82,11 @@ const ReactAntResourceFormApi: FC<ReactAntResourceFormApiProps> = (props) => {
         .finally(() => setLoading(false));
     }
   };
+
+  // hotkey save
+  useKeyboardSave(() => {
+    if (!disableHotkeySave) form.submit();
+  });
 
   // init detail
   useEffect(() => {
