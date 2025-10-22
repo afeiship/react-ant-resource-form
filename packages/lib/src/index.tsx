@@ -56,6 +56,48 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   private formRef = React.createRef<FormInstance>(); // 注意类型
   private _isMounted = false;
+
+  get isEdit() {
+    const { params } = this.props;
+    return Boolean(params?.id);
+  }
+
+  get titleView() {
+    const { title } = this.props;
+    return title || (this.isEdit ? this.t('update_title') : this.t('create_title'));
+  }
+
+  get extraView() {
+    const { extra, backText, backProps } = this.props;
+    return (
+      extra ||
+      ((
+        <Button size="small" icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
+          {backText || this.t('back')}
+        </Button>
+      ) as any)
+    );
+  }
+
+  get childrenView() {
+    const { okText, backText, okProps, backProps, children } = this.props;
+    const _okText = okText || (this.isEdit ? this.t('update') : this.t('create'));
+
+    return (
+      children ||
+      ((
+        <Space>
+          <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
+            {_okText || this.t('submit')}
+          </Button>
+          <Button icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
+            {backText || this.t('back')}
+          </Button>
+        </Space>
+      ) as any)
+    );
+  }
+
   constructor(props: ReactAntResourceFormProps) {
     super(props);
     this.state = {
@@ -85,19 +127,18 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 
   handleStateResponse(res: StageData) {
+    const { name } = this.props;
     this.setState({ loading: false });
-    const name = this.props.name;
     nx.$event?.emit?.(`${name}:refetch`);
     return this.props.transformResponse?.(res) || res.data;
   }
 
   handleFinish(values: any) {
     const { params, name } = this.props;
-    const isEdit = Boolean(params?.id);
     const resourceEdit = `${name}_update`;
     const resourceCreate = `${name}_create`;
 
-    if (isEdit) {
+    if (this.isEdit) {
       const payload = { id: params!.id, ...values };
       const _payload = this.handleStateRequest({ stage: 'update', payload });
 
@@ -161,10 +202,9 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   initDetailIfNeeded() {
     const { params, name } = this.props;
-    const isEdit = Boolean(params?.id);
     const resourceShow = `${name}_show`;
 
-    if (isEdit) {
+    if (this.isEdit) {
       const payload = { id: params!.id };
       const _payload = this.handleStateRequest({ stage: 'show', payload });
       const form = this.formRef?.current;
@@ -206,44 +246,19 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       ...rest
     } = this.props;
 
-    const isEdit = Boolean(params?.id);
-    const _okText = okText || (isEdit ? this.t('update') : this.t('create'));
-    const _title = title || (isEdit ? this.t('update_title') : this.t('create_title'));
-
-    const _extra =
-      extra ||
-      ((
-        <Button size="small" icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
-          {backText || this.t('back')}
-        </Button>
-      ) as any);
-
-    const _children =
-      children ||
-      ((
-        <Space>
-          <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
-            {_okText || this.t('submit')}
-          </Button>
-          <Button icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
-            {backText || this.t('back')}
-          </Button>
-        </Space>
-      ) as any);
-
-    console.log('render...');
+    console.log('render...', this.formRef?.current);
 
     return (
       <Card
-        title={_title}
+        title={this.titleView}
+        extra={this.extraView}
         size={size}
         loading={this.state.loading}
         classNames={classNames}
         data-component={CLASS_NAME}
-        className={cx(CLASS_NAME, className)}
-        extra={_extra}>
+        className={cx(CLASS_NAME, className)}>
         <ReactAntdFormSchema meta={meta} ref={this.formRef} onFinish={this.handleFinish} {...rest}>
-          {_children}
+          {this.childrenView}
         </ReactAntdFormSchema>
       </Card>
     );
