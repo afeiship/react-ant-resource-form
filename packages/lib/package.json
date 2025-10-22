@@ -17,7 +17,7 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@jswork/react-ant-form-schema": "^1.0.6"
+    "@jswork/react-ant-form-schema": "*"
   },
   "devDependencies": {
     "@ant-design/icons": "^6.1.0",
