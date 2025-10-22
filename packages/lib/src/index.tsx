@@ -98,6 +98,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     );
   }
 
+  get formInstance() {
+    return this.formRef?.current;
+  }
+
   constructor(props: ReactAntResourceFormProps) {
     super(props);
     this.state = {
@@ -169,7 +173,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       if (!this.props.disableHotkeySave) {
         // submit the form via ref
         try {
-          this.formRef?.current?.submit();
+          this.formInstance?.submit();
         } catch (err) {
           // ignore if submit not available yet
         }
@@ -206,7 +210,6 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     if (this.isEdit) {
       const payload = { id: params!.id };
       const _payload = this.handleStateRequest({ stage: 'show', payload });
-      const form = this.formRef?.current;
 
       nx.$api[resourceShow](_payload)
         .then((res: any) => {
@@ -214,7 +217,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           const data = this.handleStateResponse({ stage: 'show', data: res });
           // set fields value on the form via ref
           try {
-            form?.setFieldsValue?.(data);
+            this.formInstance?.setFieldsValue?.(data);
           } catch (err) {
             // ignore if not available yet
           }
