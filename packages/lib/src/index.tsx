@@ -69,32 +69,28 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   get extraView() {
     const { extra, backText, backProps } = this.props;
+    if (extra) return extra;
     return (
-      extra ||
-      ((
-        <Button size="small" icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
-          {backText || this.t('back')}
-        </Button>
-      ) as any)
+      <Button size="small" icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
+        {backText || this.t('back')}
+      </Button>
     );
   }
 
   get childrenView() {
     const { okText, backText, okProps, backProps, children } = this.props;
     const _okText = okText || (this.isEdit ? this.t('update') : this.t('create'));
+    if (children) return children;
 
     return (
-      children ||
-      ((
-        <Space>
-          <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
-            {_okText || this.t('submit')}
-          </Button>
-          <Button icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
-            {backText || this.t('back')}
-          </Button>
-        </Space>
-      ) as any)
+      <Space>
+        <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
+          {_okText || this.t('submit')}
+        </Button>
+        <Button icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
+          {backText || this.t('back')}
+        </Button>
+      </Space>
     );
   }
 
@@ -108,9 +104,6 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       loading: false,
     };
 
-    this.handleFinish = this.handleFinish.bind(this);
-    this.handleBack = this.handleBack.bind(this);
-    this.handleKeydown = this.handleKeydown.bind(this);
     this.handleStateRequest = this.handleStateRequest.bind(this);
     this.handleStateResponse = this.handleStateResponse.bind(this);
     this.initDetailIfNeeded = this.initDetailIfNeeded.bind(this);
@@ -121,9 +114,9 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     return API_FORM_LOCALES[lang!][key];
   }
 
-  private handleBack() {
+  private handleBack = () => {
     history.back();
-  }
+  };
 
   handleStateRequest(stagePayload: StagePayload) {
     this.setState({ loading: true });
@@ -137,7 +130,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     return this.props.transformResponse?.(res) || res.data;
   }
 
-  handleFinish(values: any) {
+  handleFinish = (values: any) => {
     const { params, name } = this.props;
     const resourceEdit = `${name}_update`;
     const resourceCreate = `${name}_create`;
@@ -163,10 +156,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         })
         .finally(() => this.setState({ loading: false }));
     }
-  }
+  };
 
   // hotkey save handler (replaces useKeyboardSave hook)
-  handleKeydown(e: KeyboardEvent) {
+  handleKeydown = (e: KeyboardEvent) => {
     const isSave = (e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S');
     if (isSave) {
       e.preventDefault();
@@ -179,7 +172,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         }
       }
     }
-  }
+  };
 
   componentDidMount() {
     this._isMounted = true;
