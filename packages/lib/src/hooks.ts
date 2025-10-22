@@ -1,5 +1,11 @@
 import { useEffect, useCallback } from 'react';
 
+/**
+ * 这个Hook此项目已经用不到了，不过，如果后面当前组件需要改写成 functional 的形式，需要用到
+ * 暂时可以保留
+ * @param callback
+ */
+
 export const useKeyboardSave = (callback: (e: KeyboardEvent) => void) => {
   const handler = useCallback(
     (e: KeyboardEvent) => {

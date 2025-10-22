@@ -48,6 +48,16 @@ type IState = {
 
 const CLASS_NAME = 'react-ant-resource-form';
 
+/**
+ * 当前 card loading 不要直接使用，因为这个 loading 会导致 Card 里的 formRef 被设置成 null
+ * 这个情况仅在 class component 里才会出现，function component 里不会：
+ * 报错示例:
+ *
+ * this.formRef?:  null
+ * index.tsx:229 this.formRef?:  {getFieldValue: ƒ, getFieldsValue: ƒ, getFieldError: ƒ, getFieldWarning: ƒ, getFieldsError: ƒ, …}
+ * index.tsx:229 this.formRef?:  null
+ */
+
 class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> {
   public static defaultProps = {
     lang: 'zh-CN',
