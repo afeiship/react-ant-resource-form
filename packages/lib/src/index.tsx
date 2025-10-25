@@ -163,6 +163,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         .then((res: any) => {
           message.success(this.t('create_success'));
           this.handleStateResponse({ stage: 'create', data: res });
+          this.formInstance?.resetFields();
+          history.back();
         })
         .finally(() => this.setState({ loading: false }));
     }
