@@ -33,7 +33,6 @@ nx.set(nx, '$api', {
 
 function App() {
   const meta: NiceFormMeta = {
-    columns: 1,
     initialValues: {
       username: 'afei',
       password: '123456',
@@ -49,7 +48,7 @@ function App() {
       <div className="badge badge-warning absolute right-0 top-0 m-4">Build Time: {BUILD_TIME}</div>
       {/* <ReactAntResourceFormApi name="posts" meta={meta} /> */}
       <ReactAntResourceForm
-        layout='horizontal'
+        layout='vertical'
         params={{ id: 3 }}
         name="posts"
         meta={meta}

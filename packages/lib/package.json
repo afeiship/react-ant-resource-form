@@ -20,7 +20,7 @@
     "@jswork/react-ant-form-schema": "*"
   },
   "devDependencies": {
-    "@jswork/react-ant-form-schema": "^1.0.15",
+    "@jswork/react-ant-form-schema": "^1.0.20",
     "@ant-design/icons": "^6.1.0",
     "@jswork/next": "^1.4.2",
     "@swc/core": "^1.3.93",
@@ -36,7 +36,6 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "@jswork/react-ant-form-schema": "*",
     "@ant-design/icons": "*",
     "@jswork/next": "*",
     "antd": "*",
