@@ -15,10 +15,10 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@jswork/next": "^1.2.2",
+    "@jswork/next": "^1.4.2",
     "@jswork/next-replace-in-file": "^1.0.0",
-    "@jswork/presets-tailwind": "^1.1.8",
-    "@jswork/react-ant-resource-form": "^1.0.0",
+    "@jswork/presets-tailwind": "^1.2.33",
+    "@jswork/react-ant-resource-form": "^1.0.12",
     "@jswork/simple-date-format": "^1.0.5",
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",

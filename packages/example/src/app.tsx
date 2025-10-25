@@ -1,5 +1,9 @@
 import ReactAntResourceForm from '@jswork/react-ant-resource-form/src/main';
-import '@jswork/react-ant-form-schema/src/setup';
+import { config as niceFormConfig } from '@ebay/nice-form-react';
+import antdAdapter from '@ebay/nice-form-react/adapters/antdAdapter';
+
+niceFormConfig.addAdapter(antdAdapter);
+
 import '@jswork/react-ant-resource-form/src/style.scss';
 import { NiceFormMeta } from '@ebay/nice-form-react/types';
 import nx from '@jswork/next';
@@ -29,7 +33,6 @@ nx.set(nx, '$api', {
 
 function App() {
   const meta: NiceFormMeta = {
-    layout: 'vertical',
     columns: 1,
     initialValues: {
       username: 'afei',
@@ -46,6 +49,7 @@ function App() {
       <div className="badge badge-warning absolute right-0 top-0 m-4">Build Time: {BUILD_TIME}</div>
       {/* <ReactAntResourceFormApi name="posts" meta={meta} /> */}
       <ReactAntResourceForm
+        layout='horizontal'
         params={{ id: 3 }}
         name="posts"
         meta={meta}
