@@ -16,9 +16,6 @@
     "postbuild": "postsass -s src/style.scss -d dist/style.css -c",
     "release": "release-it"
   },
-  "dependencies": {
-    "@jswork/react-ant-form-schema": "*"
-  },
   "devDependencies": {
     "@jswork/react-ant-form-schema": "^1.0.21",
     "@ant-design/icons": "^6.1.0",
@@ -37,6 +34,7 @@
   },
   "peerDependencies": {
     "@ant-design/icons": "*",
+    "@jswork/react-ant-form-schema": "*",
     "@jswork/next": "*",
     "antd": "*",
     "classnames": "*",
