@@ -1,12 +1,13 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
-import React, { Component } from 'react';
+import React, { Component, FC } from 'react';
 import { Button, ButtonProps, Card, CardProps, Space, message, Spin } from 'antd';
 import type { FormInstance } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
+import { useParams } from 'react-router-dom';
 
 declare global {
   interface NxStatic {
@@ -275,4 +276,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 }
 
+const ReactAntResourceFormFc: FC<ReactAntResourceFormProps> = (props) => {
+  const params = useParams();
+  return <ReactAntResourceForm params={params} {...props} />;
+};
+
 export default ReactAntResourceForm;
+export { ReactAntResourceFormFc };
