@@ -173,10 +173,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   // hotkey save handler (replaces useKeyboardSave hook)
   handleKeydown = (e: KeyboardEvent) => {
+    const { disableHotkeySave } = this.props;
     const isSave = (e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S');
     if (isSave) {
       e.preventDefault();
-      if (!this.props.disableHotkeySave) {
+      if (!disableHotkeySave) {
         // submit the form via ref
         try {
           this.formInstance?.submit();
