@@ -264,12 +264,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         .then((res: any) => {
           if (!this._isMounted) return; // 👈 关键：防止操作已卸载组件
           const data = this.handleStateResponse({ stage: 'show', data: res });
-          // set fields value on the form via ref
-          try {
-            this.formInstance?.setFieldsValue?.(data);
-          } catch (err) {
-            // ignore if not available yet
-          }
+          this.formInstance?.setFieldsValue?.(data);
         })
         .finally(() => {
           this.setState({ loading: false });
