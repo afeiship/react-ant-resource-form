@@ -8,7 +8,7 @@ import { ArrowLeftOutlined, DiffOutlined, SaveOutlined } from '@ant-design/icons
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
 import { useParams } from 'react-router-dom';
-import fde from 'fast-deep-equal';
+import deepEqual from 'fast-deep-equal';
 
 declare global {
   interface NxStatic {
@@ -219,19 +219,14 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     if (isSave) {
       e.preventDefault();
       if (!disableHotkeySave) {
-        // submit the form via ref
-        try {
-          this.formInstance?.submit();
-        } catch (err) {
-          // ignore if submit not available yet
-        }
+        this.formInstance?.submit();
       }
     }
   };
 
   handleValuesChange = (_: any, allValues: any) => {
     this.setState({
-      touched: fde(this._initialValues, allValues) === false,
+      touched: deepEqual(this._initialValues, allValues) === false,
     });
   };
 
