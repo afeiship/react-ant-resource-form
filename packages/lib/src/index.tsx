@@ -42,6 +42,7 @@ export type ReactAntResourceFormProps = {
   size?: CardProps['size'];
   extra?: CardProps['extra'];
   title?: CardProps['title'];
+  onInit?: (ctx: ReactAntResourceForm) => void;
 } & ReactAntdFormSchemaProps;
 
 type IState = {
@@ -137,6 +138,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     this.handleStateRequest = this.handleStateRequest.bind(this);
     this.handleStateResponse = this.handleStateResponse.bind(this);
     this.initDetailIfNeeded = this.initDetailIfNeeded.bind(this);
+
+    props.onInit?.(this);
   }
 
   private t(key: string) {
