@@ -89,7 +89,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   get touchedView() {
     if (!this.isEdit) return null;
-    return this.state.touched ? <DiffOutlined color="#f60" /> : null;
+    return this.state.touched ? (
+      <em style={{ color: '#f60' }}>
+        <DiffOutlined />
+      </em>
+    ) : null;
   }
 
   get extraView() {
@@ -208,7 +212,6 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   handleValuesChange = (_: any, allValues: any) => {
-    console.log('check changes');
     this.setState({
       touched: fde(this._initialValues, allValues) === false,
     });
@@ -285,8 +288,6 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       disableHotkeySave,
       ...rest
     } = this.props;
-
-    console.log('this._initialValues: ', this.state.touched);
 
     return (
       <Card
