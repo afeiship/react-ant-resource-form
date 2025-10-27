@@ -4,10 +4,11 @@ import React, { Component, FC } from 'react';
 import { Button, ButtonProps, Card, CardProps, Space, message, Spin } from 'antd';
 import type { FormInstance } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
-import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, DiffOutlined, SaveOutlined } from '@ant-design/icons';
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
 import { useParams } from 'react-router-dom';
+import fde from 'fast-deep-equal';
 
 declare global {
   interface NxStatic {
@@ -45,6 +46,7 @@ export type ReactAntResourceFormProps = {
 
 type IState = {
   loading: boolean;
+  touched: boolean;
 };
 
 const CLASS_NAME = 'react-ant-resource-form';
@@ -67,6 +69,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   private formRef = React.createRef<FormInstance>(); // 注意类型
   private _isMounted = false;
+  private _initialValues = null;
 
   get isEdit() {
     const { params } = this.props;
@@ -75,7 +78,18 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   get titleView() {
     const { title } = this.props;
-    return title || (this.isEdit ? this.t('update_title') : this.t('create_title'));
+    const _title = title || (this.isEdit ? this.t('update_title') : this.t('create_title'));
+    return (
+      <Space>
+        {_title}
+        <span>{this.touchedView}</span>
+      </Space>
+    );
+  }
+
+  get touchedView() {
+    if (!this.isEdit) return null;
+    return this.state.touched ? <DiffOutlined color="#f60" /> : null;
   }
 
   get extraView() {
@@ -113,6 +127,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     super(props);
     this.state = {
       loading: false,
+      touched: false,
     };
 
     this.handleStateRequest = this.handleStateRequest.bind(this);
@@ -155,7 +170,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           message.success(this.t('update_success'));
           this.handleStateResponse({ stage: 'update', data: res });
         })
-        .finally(() => this.setState({ loading: false }));
+        .finally(() => {
+          this.setState({ loading: false });
+          this._initialValues = this.formInstance?.getFieldsValue() || {};
+          this.handleValuesChange(null, this._initialValues);
+        });
     } else {
       const payload = { ...values };
       const _payload = this.handleStateRequest({ stage: 'create', payload });
@@ -186,6 +205,13 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         }
       }
     }
+  };
+
+  handleValuesChange = (_: any, allValues: any) => {
+    console.log('check changes');
+    this.setState({
+      touched: fde(this._initialValues, allValues) === false,
+    });
   };
 
   componentDidMount() {
@@ -229,7 +255,12 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
             // ignore if not available yet
           }
         })
-        .finally(() => this.setState({ loading: false }));
+        .finally(() => {
+          this.setState({ loading: false });
+          this._initialValues = this.formInstance?.getFieldsValue() || {};
+        });
+    } else {
+      this._initialValues = this.formInstance?.getFieldsValue() || {};
     }
   }
 
@@ -255,6 +286,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       ...rest
     } = this.props;
 
+    console.log('this._initialValues: ', this.state.touched);
+
     return (
       <Card
         title={this.titleView}
@@ -267,6 +300,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           <ReactAntdFormSchema
             meta={meta}
             ref={this.formRef}
+            onValuesChange={this.handleValuesChange}
             onFinish={this.handleFinish}
             {...rest}>
             {this.childrenView}
