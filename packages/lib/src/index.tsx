@@ -77,6 +77,12 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     return Boolean(params?.id);
   }
 
+  get canSave() {
+    const { touched, loading } = this.state;
+    if (!this.isEdit) return loading === false;
+    return touched === true && loading === false;
+  }
+
   get titleView() {
     const { title } = this.props;
     const _title = title || (this.isEdit ? this.t('update_title') : this.t('create_title'));
@@ -114,7 +120,12 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
     return (
       <Space>
-        <Button htmlType="submit" type="primary" icon={<SaveOutlined />} {...okProps}>
+        <Button
+          disabled={!this.canSave}
+          htmlType="submit"
+          type="primary"
+          icon={<SaveOutlined />}
+          {...okProps}>
           {_okText || this.t('submit')}
         </Button>
         <Button icon={<ArrowLeftOutlined />} onClick={this.handleBack} {...backProps}>
@@ -289,6 +300,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       transformRequest,
       transformResponse,
       disableHotkeySave,
+      onInit,
       ...rest
     } = this.props;
 

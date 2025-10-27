@@ -53,6 +53,9 @@ function App() {
         name="posts"
         meta={meta}
         classNames={{ body: 'bg-slate-100' }}
+        onInit={ctx=>{
+          console.log('ctx: ', ctx);
+        }}
       />
     </div>
   );
