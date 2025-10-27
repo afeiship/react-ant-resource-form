@@ -162,6 +162,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     history.back();
   };
 
+  private setInitialValues = (values?: any) => {
+    this._initialValues = values || this.formInstance?.getFieldsValue() || {};
+  };
+
   handleStateRequest(stagePayload: StagePayload) {
     this.setState({ loading: true });
     return this.props.transformRequest?.(stagePayload) || stagePayload.payload;
@@ -190,7 +194,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         })
         .finally(() => {
           this.setState({ loading: false });
-          this._initialValues = this.formInstance?.getFieldsValue() || {};
+          this.setInitialValues();
           this.handleValuesChange(null, this._initialValues);
         });
     } else {
@@ -274,10 +278,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         })
         .finally(() => {
           this.setState({ loading: false });
-          this._initialValues = this.formInstance?.getFieldsValue() || {};
+          this.setInitialValues();
         });
     } else {
-      this._initialValues = this.formInstance?.getFieldsValue() || {};
+      this.setInitialValues();
     }
   }
 
