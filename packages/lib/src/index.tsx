@@ -79,8 +79,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   get canSave() {
     const { touched, loading } = this.state;
-    if (!this.isEdit) return loading === false;
-    return touched === true && loading === false;
+    if (!this.isEdit) return !loading;
+    return touched && !loading;
   }
 
   get titleView() {
