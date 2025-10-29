@@ -1,5 +1,5 @@
-.react-ant-form-schema {
-  &[data-blocker='true'] {
+[data-blocker='true'] {
+  .react-ant-form-schema {
     .nice-form-layout {
       display: block !important;
     }
