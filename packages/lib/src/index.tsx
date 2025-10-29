@@ -33,6 +33,7 @@ export type ReactAntResourceFormProps = {
   okText?: string;
   backText?: string;
   params?: Record<string, any>;
+  blocker?: boolean;
   disableHotkeySave?: boolean;
   transformRequest?: (payload: StagePayload) => any;
   transformResponse?: (res: StageData) => any;
@@ -294,6 +295,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       transformRequest,
       transformResponse,
       disableHotkeySave,
+      blocker,
       onInit,
       ...rest
     } = this.props;
@@ -305,6 +307,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         size={size}
         classNames={classNames}
         data-component={CLASS_NAME}
+        data-blocker={blocker}
         className={cx(CLASS_NAME, className)}>
         <Spin spinning={this.state.loading}>
           <ReactAntdFormSchema

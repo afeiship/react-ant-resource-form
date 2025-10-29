@@ -1,3 +1,7 @@
-//.react-ant-resource-form {
-//  color: red;
-//}
+.react-ant-form-schema {
+  &[data-blocker='true'] {
+    .nice-form-layout {
+      display: block !important;
+    }
+  }
+}
