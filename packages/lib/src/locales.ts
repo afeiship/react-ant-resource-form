@@ -8,6 +8,7 @@ export const API_FORM_LOCALES = {
     update_success: '更新成功',
     submit: '提交',
     back: '返回',
+    no_change: '没有修改',
   },
   'en-US': {
     create: 'Create',
@@ -18,5 +19,6 @@ export const API_FORM_LOCALES = {
     update_success: 'Update success',
     submit: 'Submit',
     back: 'Back',
+    no_change: 'No change',
   },
 };

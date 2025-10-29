@@ -184,6 +184,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     const resourceEdit = `${name}_update`;
     const resourceCreate = `${name}_create`;
 
+    if (!this.canSave) {
+      void message.info(this.t('no_change'));
+      return;
+    }
+
     if (this.isEdit) {
       const payload = { id: params!.id, ...values };
       const _payload = this.handleStateRequest({ stage: 'update', payload });
