@@ -166,7 +166,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   constructor(props: ReactAntResourceFormProps) {
     super(props);
     this.state = {
-      loading: false,
+      loading: props.loading!,
       touched: false,
     };
 
@@ -293,6 +293,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     if (prevId !== curId) {
       this.initDetailIfNeeded();
     }
+
+    // loading update
+    if (prevProps.loading !== this.props.loading) {
+      this.setState({ loading: this.props.loading! });
+    }
   }
 
   componentWillUnmount() {
@@ -362,6 +367,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       onInit,
       initGuard,
       submitGuard,
+      loading,
       ...rest
     } = this.props;
 
