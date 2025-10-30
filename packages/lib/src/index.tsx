@@ -8,7 +8,6 @@ import { ArrowLeftOutlined, DiffOutlined, SaveOutlined } from '@ant-design/icons
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
 import '@jswork/next-compact-object';
-import '@jswork/next-pick';
 import { useParams, useSearchParams } from 'react-router-dom';
 import deepEqual from 'fast-deep-equal';
 import fromEntries from 'fromentries';
