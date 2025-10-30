@@ -32,7 +32,7 @@ type InitGuardArgs = {
   params?: Record<string, any>;
   payload: any;
   isEdit: boolean;
-}
+};
 
 type SubmitGuardArgs = {
   name?: string;
@@ -40,7 +40,7 @@ type SubmitGuardArgs = {
   payload: any;
   isEdit: boolean;
   values: any;
-}
+};
 
 export type ReactAntResourceFormProps = {
   lang?: string;
@@ -213,7 +213,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     }
 
     if (this.isEdit) {
-      const payload = { id: params!.id, ...values };
+      const payload = { id: params!.id, ...values, ...params };
       const _payload = this.handleStateRequest({ stage: 'update', payload });
       const submitGuardArgs: SubmitGuardArgs = {
         name,
@@ -223,21 +223,20 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         params,
       };
 
-      submitGuard?.(submitGuardArgs)
-        .then(() => {
-          nx.$api[resourceEdit](_payload)
-            .then((res: any) => {
-              void message.success(this.t('update_success'));
-              this.handleStateResponse({ stage: 'update', data: res });
-            })
-            .finally(() => {
-              this.setState({ loading: false });
-              this.setInitialValues();
-              this.handleValuesChange(null, this._initialValues);
-            });
-        });
+      submitGuard?.(submitGuardArgs).then(() => {
+        nx.$api[resourceEdit](_payload)
+          .then((res: any) => {
+            void message.success(this.t('update_success'));
+            this.handleStateResponse({ stage: 'update', data: res });
+          })
+          .finally(() => {
+            this.setState({ loading: false });
+            this.setInitialValues();
+            this.handleValuesChange(null, this._initialValues);
+          });
+      });
     } else {
-      const payload = { ...values };
+      const payload = { ...values, ...params };
       const _payload = this.handleStateRequest({ stage: 'create', payload });
       const submitGuardArgs: SubmitGuardArgs = {
         name,
@@ -318,19 +317,18 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         isEdit: true,
         params,
       };
-      initGuard?.(initGuardArgs)
-        .then(() => {
-          nx.$api[resourceShow](_payload)
-            .then((res: any) => {
-              if (!this._isMounted) return; // 👈 关键：防止操作已卸载组件
-              const data = this.handleStateResponse({ stage: 'show', data: res });
-              this.formInstance?.setFieldsValue?.(data);
-            })
-            .finally(() => {
-              this.setState({ loading: false });
-              this.setInitialValues();
-            });
-        });
+      initGuard?.(initGuardArgs).then(() => {
+        nx.$api[resourceShow](_payload)
+          .then((res: any) => {
+            if (!this._isMounted) return; // 👈 关键：防止操作已卸载组件
+            const data = this.handleStateResponse({ stage: 'show', data: res });
+            this.formInstance?.setFieldsValue?.(data);
+          })
+          .finally(() => {
+            this.setState({ loading: false });
+            this.setInitialValues();
+          });
+      });
     } else {
       const initGuardArgs: InitGuardArgs = {
         name,
@@ -398,7 +396,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
 const ReactAntResourceFormFc: FC<ReactAntResourceFormProps> = (props) => {
   const params = useParams();
-  return <ReactAntResourceForm params={params} {...props} />;
+  const { params: extParams } = props;
+  return <ReactAntResourceForm params={{ ...params, ...extParams }} {...props} />;
 };
 
 export default ReactAntResourceForm;
