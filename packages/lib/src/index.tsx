@@ -340,6 +340,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       };
       initGuard?.(initGuardArgs).then(() => {
         this.setInitialValues();
+        this.setState({ loading: false });
       });
     }
   }
