@@ -27,6 +27,21 @@ type StageData = {
   data: any;
 };
 
+type InitGuardArgs = {
+  name?: string;
+  params?: Record<string, any>;
+  payload: any;
+  isEdit: boolean;
+}
+
+type SubmitGuardArgs = {
+  name?: string;
+  params?: Record<string, any>;
+  payload: any;
+  isEdit: boolean;
+  values: any;
+}
+
 export type ReactAntResourceFormProps = {
   lang?: string;
   loading?: boolean;
@@ -35,6 +50,8 @@ export type ReactAntResourceFormProps = {
   params?: Record<string, any>;
   blocker?: boolean;
   disableHotkeySave?: boolean;
+  initGuard?: (args: InitGuardArgs) => Promise<void>;
+  submitGuard?: (args: SubmitGuardArgs) => Promise<void>;
   transformRequest?: (payload: StagePayload) => any;
   transformResponse?: (res: StageData) => any;
   okProps?: ButtonProps;
@@ -61,12 +78,18 @@ const CLASS_NAME = 'react-ant-resource-form';
  * this.formRef?:  null
  * index.tsx:229 this.formRef?:  {getFieldValue: ƒ, getFieldsValue: ƒ, getFieldError: ƒ, getFieldWarning: ƒ, getFieldsError: ƒ, …}
  * index.tsx:229 this.formRef?:  null
+ *
+ * initGuard | submitGuard:
+ * https://chat.qwen.ai/c/60329863-0e5e-47f9-a075-a65ad30940cc
  */
 
 class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> {
   public static defaultProps = {
     lang: 'zh-CN',
     disableHotkeySave: false,
+    blocker: false,
+    initGuard: () => Promise.resolve(),
+    submitGuard: () => Promise.resolve(),
   };
 
   private formRef = React.createRef<FormInstance>(); // 注意类型
@@ -180,7 +203,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 
   handleFinish = (values: any) => {
-    const { params, name } = this.props;
+    const { params, name, submitGuard } = this.props;
     const resourceEdit = `${name}_update`;
     const resourceCreate = `${name}_create`;
 
@@ -192,29 +215,48 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     if (this.isEdit) {
       const payload = { id: params!.id, ...values };
       const _payload = this.handleStateRequest({ stage: 'update', payload });
+      const submitGuardArgs: SubmitGuardArgs = {
+        name,
+        payload: _payload,
+        isEdit: true,
+        values,
+        params,
+      };
 
-      nx.$api[resourceEdit](_payload)
-        .then((res: any) => {
-          message.success(this.t('update_success'));
-          this.handleStateResponse({ stage: 'update', data: res });
-        })
-        .finally(() => {
-          this.setState({ loading: false });
-          this.setInitialValues();
-          this.handleValuesChange(null, this._initialValues);
+      submitGuard?.(submitGuardArgs)
+        .then(() => {
+          nx.$api[resourceEdit](_payload)
+            .then((res: any) => {
+              void message.success(this.t('update_success'));
+              this.handleStateResponse({ stage: 'update', data: res });
+            })
+            .finally(() => {
+              this.setState({ loading: false });
+              this.setInitialValues();
+              this.handleValuesChange(null, this._initialValues);
+            });
         });
     } else {
       const payload = { ...values };
       const _payload = this.handleStateRequest({ stage: 'create', payload });
+      const submitGuardArgs: SubmitGuardArgs = {
+        name,
+        payload: _payload,
+        isEdit: false,
+        values,
+        params,
+      };
 
-      nx.$api[resourceCreate](_payload)
-        .then((res: any) => {
-          message.success(this.t('create_success'));
-          this.handleStateResponse({ stage: 'create', data: res });
-          this.formInstance?.resetFields();
-          history.back();
-        })
-        .finally(() => this.setState({ loading: false }));
+      submitGuard?.(submitGuardArgs).then(() => {
+        nx.$api[resourceCreate](_payload)
+          .then((res: any) => {
+            void message.success(this.t('create_success'));
+            this.handleStateResponse({ stage: 'create', data: res });
+            this.formInstance?.resetFields();
+            history.back();
+          })
+          .finally(() => this.setState({ loading: false }));
+      });
     }
   };
 
@@ -259,25 +301,41 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 
   initDetailIfNeeded() {
-    const { params, name } = this.props;
+    const { params, name, initGuard } = this.props;
     const resourceShow = `${name}_show`;
 
     if (this.isEdit) {
       const payload = { id: params!.id };
       const _payload = this.handleStateRequest({ stage: 'show', payload });
-
-      nx.$api[resourceShow](_payload)
-        .then((res: any) => {
-          if (!this._isMounted) return; // 👈 关键：防止操作已卸载组件
-          const data = this.handleStateResponse({ stage: 'show', data: res });
-          this.formInstance?.setFieldsValue?.(data);
-        })
-        .finally(() => {
-          this.setState({ loading: false });
-          this.setInitialValues();
+      const initGuardArgs: InitGuardArgs = {
+        name,
+        payload: _payload,
+        isEdit: true,
+        params,
+      };
+      initGuard?.(initGuardArgs)
+        .then(() => {
+          nx.$api[resourceShow](_payload)
+            .then((res: any) => {
+              if (!this._isMounted) return; // 👈 关键：防止操作已卸载组件
+              const data = this.handleStateResponse({ stage: 'show', data: res });
+              this.formInstance?.setFieldsValue?.(data);
+            })
+            .finally(() => {
+              this.setState({ loading: false });
+              this.setInitialValues();
+            });
         });
     } else {
-      this.setInitialValues();
+      const initGuardArgs: InitGuardArgs = {
+        name,
+        payload: null,
+        isEdit: false,
+        params,
+      };
+      initGuard?.(initGuardArgs).then(() => {
+        this.setInitialValues();
+      });
     }
   }
 
@@ -302,6 +360,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       disableHotkeySave,
       blocker,
       onInit,
+      initGuard,
+      submitGuard,
       ...rest
     } = this.props;
 
