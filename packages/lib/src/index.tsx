@@ -1,14 +1,17 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
 import React, { Component, FC } from 'react';
-import { Button, ButtonProps, Card, CardProps, Space, message, Spin } from 'antd';
 import type { FormInstance } from 'antd';
+import { Button, ButtonProps, Card, CardProps, message, Space, Spin } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { ArrowLeftOutlined, DiffOutlined, SaveOutlined } from '@ant-design/icons';
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
-import { useParams } from 'react-router-dom';
+import '@jswork/next-compact-object';
+import '@jswork/next-pick';
+import { useParams, useSearchParams } from 'react-router-dom';
 import deepEqual from 'fast-deep-equal';
+import fromEntries from 'fromentries';
 
 declare global {
   interface NxStatic {
@@ -69,6 +72,15 @@ type IState = {
 };
 
 const CLASS_NAME = 'react-ant-resource-form';
+
+const retainKeys = (obj: Record<string, any>, keys: string[]) => {
+  nx.forIn(obj, (key) => {
+    if (!keys.includes(key)) {
+      delete obj[key];
+    }
+  });
+  return obj;
+};
 
 /**
  * 当前 card loading 不要直接使用，因为这个 loading 会导致 Card 里的 formRef 被设置成 null
@@ -394,10 +406,18 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 }
 
-const ReactAntResourceFormFc: FC<ReactAntResourceFormProps> = (props) => {
+export type ReactAntResourceFormFcProps = ReactAntResourceFormProps & {
+  allowFields?: string[];
+}
+
+const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
+  const { params: overrideParams, allowFields, ...rest } = props;
   const params = useParams();
-  const { params: extParams } = props;
-  return <ReactAntResourceForm params={{ ...params, ...extParams }} {...props} />;
+  const [searchParams] = useSearchParams();
+  const _searchParams = fromEntries(searchParams as any);
+  const _params = nx.compactObject({ ..._searchParams, ...params, ...overrideParams });
+  if (allowFields?.length && allowFields.length > 0) retainKeys(_params, allowFields);
+  return <ReactAntResourceForm params={_params} {...rest} />;
 };
 
 export default ReactAntResourceForm;
