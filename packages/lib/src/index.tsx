@@ -29,6 +29,14 @@ type StageData = {
   data: any;
 };
 
+type MutateArgs = {
+  name?: string;
+  params?: Record<string, any>;
+  payload: any;
+  isEdit: boolean;
+  values: any;
+};
+
 type InitGuardArgs = {
   name?: string;
   params?: Record<string, any>;
@@ -63,8 +71,7 @@ export type ReactAntResourceFormProps = {
   extra?: CardProps['extra'];
   title?: CardProps['title'];
   onInit?: (ctx: ReactAntResourceForm) => void;
-  onAfterCreate?: (res: any) => void;
-  onAfterUpdate?: (res: any) => void;
+  onMutate?: (args: MutateArgs) => void;
 } & ReactAntdFormSchemaProps;
 
 type IState = {
@@ -224,7 +231,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   private onResourceUpdate = (values: any) => {
-    const { params, name, submitGuard, onAfterUpdate } = this.props;
+    const { params, name, submitGuard, onMutate } = this.props;
     const payload = { id: params!.id, ...values, ...params };
     const _payload = this.handleStateRequest({ stage: 'update', payload });
     const submitGuardArgs: SubmitGuardArgs = {
@@ -234,13 +241,19 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       values,
       params,
     };
+    const mutateArgs: MutateArgs = {
+      name,
+      payload: _payload,
+      isEdit: true,
+      values,
+    };
 
     submitGuard?.(submitGuardArgs).then(() => {
       nx.$api[`${name}_update`](_payload)
         .then((res: any) => {
           void message.success(this.t('update_success'));
           this.handleStateResponse({ stage: 'update', data: res });
-          onAfterUpdate?.(res);
+          onMutate?.(mutateArgs);
         })
         .finally(() => {
           this.setState({ loading: false });
@@ -251,7 +264,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   private onResourceCreate = (values: any) => {
-    const { params, name, submitGuard, onAfterCreate } = this.props;
+    const { params, name, submitGuard, onMutate } = this.props;
     const payload = { ...values, ...params };
     const _payload = this.handleStateRequest({ stage: 'create', payload });
     const submitGuardArgs: SubmitGuardArgs = {
@@ -262,13 +275,20 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       params,
     };
 
+    const mutateArgs: MutateArgs = {
+      name,
+      payload: _payload,
+      isEdit: false,
+      values,
+    };
+
     submitGuard?.(submitGuardArgs).then(() => {
       nx.$api[`${name}_create`](_payload)
         .then((res: any) => {
           void message.success(this.t('create_success'));
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
-          onAfterCreate?.(res);
+          onMutate?.(mutateArgs);
           history.back();
         })
         .finally(() => this.setState({ loading: false }));
