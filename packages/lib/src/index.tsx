@@ -17,6 +17,7 @@ import {
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
 import '@jswork/next-compact-object';
+import { filterPayload } from './utils';
 
 declare global {
   interface NxStatic {
@@ -48,6 +49,7 @@ export type ReactAntResourceFormProps = {
   title?: CardProps['title'];
   onInit?: (ctx: ReactAntResourceForm) => void;
   onMutate?: (args: MutateArgs) => void;
+  payloadFields?: { include?: string[]; exclude?: string[] }
 } & ReactAntdFormSchemaProps;
 
 export type IState = {
@@ -86,6 +88,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     mute: false,
     initGuard: () => Promise.resolve(),
     submitGuard: () => Promise.resolve(),
+    payloadFields: { include: [], exclude: [] },
   };
 
   private formRef = React.createRef<FormInstance>(); // 注意类型
@@ -192,8 +195,10 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   handleStateRequest(stagePayload: StagePayload) {
+    const { payloadFields, transformRequest } = this.props;
     this.setState({ loading: true });
-    return this.props.transformRequest?.(stagePayload) || stagePayload.payload;
+    const rawPayload = transformRequest?.(stagePayload) || stagePayload.payload;
+    return filterPayload(rawPayload, payloadFields);
   }
 
   handleStateResponse(res: StageData) {
@@ -388,6 +393,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       initGuard,
       submitGuard,
       loading,
+      payloadFields,
       ...rest
     } = this.props;
 
