@@ -101,6 +101,9 @@ const retainKeys = (obj: Record<string, any>, keys: string[]) => {
  *
  * initGuard | submitGuard:
  * https://chat.qwen.ai/c/60329863-0e5e-47f9-a075-a65ad30940cc
+ *
+ * onMutate:
+ * 在 create/update 成功后，需要刷新列表，可以用 onMutate 继续后续处理。
  */
 
 class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> {
@@ -400,6 +403,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       disableHotkeySave,
       blocker,
       onInit,
+      onMutate,
       initGuard,
       submitGuard,
       loading,
