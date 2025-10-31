@@ -377,6 +377,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       transformResponse,
       disableHotkeySave,
       blocker,
+      mute,
       onInit,
       onMutate,
       initGuard,
