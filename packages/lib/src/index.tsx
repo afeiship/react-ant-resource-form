@@ -184,8 +184,8 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     history.back();
   };
 
-  private setInitialValues = (values?: any) => {
-    this._initialValues = values || this.formInstance?.getFieldsValue() || {};
+  private setInitialValues = () => {
+    this._initialValues = this.formInstance?.getFieldsValue();
   };
 
   handleStateRequest(stagePayload: StagePayload) {
@@ -286,7 +286,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   handleValuesChange = (_: any, allValues: any) => {
-    if (this._isMounted) {
+    if (this._isMounted && this._initialValues !== null) {
       this.setState({
         touched: !deepEqual(this._initialValues, allValues),
       });
