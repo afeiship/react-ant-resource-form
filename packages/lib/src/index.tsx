@@ -224,9 +224,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   private onResourceUpdate = (values: any) => {
-    const { params, name, submitGuard } = this.props;
-    const resourceEdit = `${name}_update`;
-
+    const { params, name, submitGuard, onAfterUpdate } = this.props;
     const payload = { id: params!.id, ...values, ...params };
     const _payload = this.handleStateRequest({ stage: 'update', payload });
     const submitGuardArgs: SubmitGuardArgs = {
@@ -238,10 +236,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     };
 
     submitGuard?.(submitGuardArgs).then(() => {
-      nx.$api[resourceEdit](_payload)
+      nx.$api[`${name}_update`](_payload)
         .then((res: any) => {
           void message.success(this.t('update_success'));
           this.handleStateResponse({ stage: 'update', data: res });
+          onAfterUpdate?.(res);
         })
         .finally(() => {
           this.setState({ loading: false });
@@ -252,8 +251,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   private onResourceCreate = (values: any) => {
-    const { params, name, submitGuard } = this.props;
-    const resourceCreate = `${name}_create`;
+    const { params, name, submitGuard, onAfterCreate } = this.props;
     const payload = { ...values, ...params };
     const _payload = this.handleStateRequest({ stage: 'create', payload });
     const submitGuardArgs: SubmitGuardArgs = {
@@ -265,11 +263,12 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     };
 
     submitGuard?.(submitGuardArgs).then(() => {
-      nx.$api[resourceCreate](_payload)
+      nx.$api[`${name}_create`](_payload)
         .then((res: any) => {
           void message.success(this.t('create_success'));
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
+          onAfterCreate?.(res);
           history.back();
         })
         .finally(() => this.setState({ loading: false }));
