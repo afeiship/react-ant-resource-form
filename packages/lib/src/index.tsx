@@ -63,6 +63,8 @@ export type ReactAntResourceFormProps = {
   extra?: CardProps['extra'];
   title?: CardProps['title'];
   onInit?: (ctx: ReactAntResourceForm) => void;
+  onAfterCreate?: (res: any) => void;
+  onAfterUpdate?: (res: any) => void;
 } & ReactAntdFormSchemaProps;
 
 type IState = {
@@ -214,60 +216,64 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 
   handleFinish = (values: any) => {
-    const { params, name, submitGuard } = this.props;
-    const resourceEdit = `${name}_update`;
-    const resourceCreate = `${name}_create`;
-
     if (!this.canSave) {
       void message.info(this.t('no_change'));
       return;
     }
+    this.isEdit ? this.onResourceUpdate(values) : this.onResourceCreate(values);
+  };
 
-    if (this.isEdit) {
-      const payload = { id: params!.id, ...values, ...params };
-      const _payload = this.handleStateRequest({ stage: 'update', payload });
-      const submitGuardArgs: SubmitGuardArgs = {
-        name,
-        payload: _payload,
-        isEdit: true,
-        values,
-        params,
-      };
+  private onResourceUpdate = (values: any) => {
+    const { params, name, submitGuard } = this.props;
+    const resourceEdit = `${name}_update`;
 
-      submitGuard?.(submitGuardArgs).then(() => {
-        nx.$api[resourceEdit](_payload)
-          .then((res: any) => {
-            void message.success(this.t('update_success'));
-            this.handleStateResponse({ stage: 'update', data: res });
-          })
-          .finally(() => {
-            this.setState({ loading: false });
-            this.setInitialValues();
-            this.handleValuesChange(null, this._initialValues);
-          });
-      });
-    } else {
-      const payload = { ...values, ...params };
-      const _payload = this.handleStateRequest({ stage: 'create', payload });
-      const submitGuardArgs: SubmitGuardArgs = {
-        name,
-        payload: _payload,
-        isEdit: false,
-        values,
-        params,
-      };
+    const payload = { id: params!.id, ...values, ...params };
+    const _payload = this.handleStateRequest({ stage: 'update', payload });
+    const submitGuardArgs: SubmitGuardArgs = {
+      name,
+      payload: _payload,
+      isEdit: true,
+      values,
+      params,
+    };
 
-      submitGuard?.(submitGuardArgs).then(() => {
-        nx.$api[resourceCreate](_payload)
-          .then((res: any) => {
-            void message.success(this.t('create_success'));
-            this.handleStateResponse({ stage: 'create', data: res });
-            this.formInstance?.resetFields();
-            history.back();
-          })
-          .finally(() => this.setState({ loading: false }));
-      });
-    }
+    submitGuard?.(submitGuardArgs).then(() => {
+      nx.$api[resourceEdit](_payload)
+        .then((res: any) => {
+          void message.success(this.t('update_success'));
+          this.handleStateResponse({ stage: 'update', data: res });
+        })
+        .finally(() => {
+          this.setState({ loading: false });
+          this.setInitialValues();
+          this.handleValuesChange(null, this._initialValues);
+        });
+    });
+  };
+
+  private onResourceCreate = (values: any) => {
+    const { params, name, submitGuard } = this.props;
+    const resourceCreate = `${name}_create`;
+    const payload = { ...values, ...params };
+    const _payload = this.handleStateRequest({ stage: 'create', payload });
+    const submitGuardArgs: SubmitGuardArgs = {
+      name,
+      payload: _payload,
+      isEdit: false,
+      values,
+      params,
+    };
+
+    submitGuard?.(submitGuardArgs).then(() => {
+      nx.$api[resourceCreate](_payload)
+        .then((res: any) => {
+          void message.success(this.t('create_success'));
+          this.handleStateResponse({ stage: 'create', data: res });
+          this.formInstance?.resetFields();
+          history.back();
+        })
+        .finally(() => this.setState({ loading: false }));
+    });
   };
 
   // hotkey save handler (replaces useKeyboardSave hook)
