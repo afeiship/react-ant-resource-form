@@ -1,16 +1,22 @@
 // import noop from '@jswork/noop';
 import cx from 'classnames';
-import React, { Component, FC } from 'react';
-import type { FormInstance } from 'antd';
-import { Button, ButtonProps, Card, CardProps, message, Space, Spin } from 'antd';
+import React, { Component } from 'react';
+import { ButtonProps, CardProps, FormInstance } from 'antd';
+import { Button, Card, message, Space, Spin } from 'antd';
 import ReactAntdFormSchema, { ReactAntdFormSchemaProps } from '@jswork/react-ant-form-schema';
 import { ArrowLeftOutlined, DiffOutlined, SaveOutlined } from '@ant-design/icons';
+import deepEqual from 'fast-deep-equal';
+import {
+  InitGuardArgs,
+  MsgType,
+  MutateArgs,
+  StageData,
+  StagePayload,
+  SubmitGuardArgs,
+} from './types';
 import { API_FORM_LOCALES } from './locales';
 import nx from '@jswork/next';
 import '@jswork/next-compact-object';
-import { useParams, useSearchParams } from 'react-router-dom';
-import deepEqual from 'fast-deep-equal';
-import fromEntries from 'fromentries';
 
 declare global {
   interface NxStatic {
@@ -19,38 +25,7 @@ declare global {
   }
 }
 
-type StagePayload = {
-  stage: 'show' | 'create' | 'update';
-  payload: any;
-};
-
-type StageData = {
-  stage: 'show' | 'create' | 'update';
-  data: any;
-};
-
-type MutateArgs = {
-  name?: string;
-  params?: Record<string, any>;
-  payload: any;
-  isEdit: boolean;
-  values: any;
-};
-
-type InitGuardArgs = {
-  name?: string;
-  params?: Record<string, any>;
-  payload: any;
-  isEdit: boolean;
-};
-
-type SubmitGuardArgs = {
-  name?: string;
-  params?: Record<string, any>;
-  payload: any;
-  isEdit: boolean;
-  values: any;
-};
+const CLASS_NAME = 'react-ant-resource-form';
 
 export type ReactAntResourceFormProps = {
   lang?: string;
@@ -59,6 +34,7 @@ export type ReactAntResourceFormProps = {
   backText?: string;
   params?: Record<string, any>;
   blocker?: boolean;
+  mute?: boolean;
   disableHotkeySave?: boolean;
   initGuard?: (args: InitGuardArgs) => Promise<void>;
   submitGuard?: (args: SubmitGuardArgs) => Promise<void>;
@@ -74,20 +50,9 @@ export type ReactAntResourceFormProps = {
   onMutate?: (args: MutateArgs) => void;
 } & ReactAntdFormSchemaProps;
 
-type IState = {
+export type IState = {
   loading: boolean;
   touched: boolean;
-};
-
-const CLASS_NAME = 'react-ant-resource-form';
-
-const retainKeys = (obj: Record<string, any>, keys: string[]) => {
-  nx.forIn(obj, (key) => {
-    if (!keys.includes(key)) {
-      delete obj[key];
-    }
-  });
-  return obj;
 };
 
 /**
@@ -104,6 +69,10 @@ const retainKeys = (obj: Record<string, any>, keys: string[]) => {
  *
  * onMutate:
  * 在 create/update 成功后，需要刷新列表，可以用 onMutate 继续后续处理。
+ *
+ * blocker:
+ * 这个解决的问题是，目前 nice-form 里默认是 grid layout，导致部分情况下，卡片内部的 style 表现很不正常。
+ * 特别是有非 antd 组件的情况下，比如我自己的 react-ckeditor
  */
 
 class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> {
@@ -111,6 +80,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     lang: 'zh-CN',
     disableHotkeySave: false,
     blocker: false,
+    mute: false,
     initGuard: () => Promise.resolve(),
     submitGuard: () => Promise.resolve(),
   };
@@ -205,6 +175,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     return API_FORM_LOCALES[lang!][key];
   }
 
+  private msg(msg: string, type: MsgType = 'success') {
+    const { mute } = this.props;
+    if (!mute) message[type](msg);
+  }
+
   private handleBack = () => {
     history.back();
   };
@@ -227,7 +202,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   handleFinish = (values: any) => {
     if (!this.canSave) {
-      void message.info(this.t('no_change'));
+      this.msg(this.t('no_change'), 'info');
       return;
     }
     this.isEdit ? this.onResourceUpdate(values) : this.onResourceCreate(values);
@@ -254,7 +229,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     submitGuard?.(submitGuardArgs).then(() => {
       nx.$api[`${name}_update`](_payload)
         .then((res: any) => {
-          void message.success(this.t('update_success'));
+          this.msg(this.t('update_success'));
           this.handleStateResponse({ stage: 'update', data: res });
           onMutate?.(mutateArgs);
         })
@@ -288,7 +263,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
     submitGuard?.(submitGuardArgs).then(() => {
       nx.$api[`${name}_create`](_payload)
         .then((res: any) => {
-          void message.success(this.t('create_success'));
+          this.msg(this.t('create_success'));
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
           onMutate?.(mutateArgs);
@@ -434,19 +409,5 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   }
 }
 
-export type ReactAntResourceFormFcProps = ReactAntResourceFormProps & {
-  allowFields?: string[];
-}
-
-const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
-  const { params: overrideParams, allowFields, ...rest } = props;
-  const params = useParams();
-  const [searchParams] = useSearchParams();
-  const _searchParams = fromEntries(searchParams as any);
-  const _params = nx.compactObject({ ..._searchParams, ...params, ...overrideParams });
-  if (allowFields?.length && allowFields.length > 0) retainKeys(_params, allowFields);
-  return <ReactAntResourceForm params={_params} {...rest} />;
-};
 
 export default ReactAntResourceForm;
-export { ReactAntResourceFormFc };
