@@ -286,9 +286,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   handleValuesChange = (_: any, allValues: any) => {
-    this.setState({
-      touched: !deepEqual(this._initialValues, allValues),
-    });
+    if (this._isMounted) {
+      this.setState({
+        touched: !deepEqual(this._initialValues, allValues),
+      });
+    }
   };
 
   componentDidMount() {
