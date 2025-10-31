@@ -73,6 +73,9 @@ export type IState = {
  * blocker:
  * 这个解决的问题是，目前 nice-form 里默认是 grid layout，导致部分情况下，卡片内部的 style 表现很不正常。
  * 特别是有非 antd 组件的情况下，比如我自己的 react-ckeditor
+ *
+ * transformRequest:
+ * 当你提交表单的时候，需要对参数进行一些预处理，比如加密，或者添加一些默认值，这个时候就可以用 transformRequest。
  */
 
 class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> {
