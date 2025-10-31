@@ -2,7 +2,9 @@
  * @Author: aric 1290657123@qq.com
  * @Date: 2025-10-31 16:46:34
  * @LastEditors: aric 1290657123@qq.com
- * @LastEditTime: 2025-10-31 16:46:47
+ * @LastEditTime: 2025-10-31 16:51:16
+ *
+ * AI(filterPayload): https://chat.qwen.ai/c/5213efdf-e88d-4367-9bd1-bd4d23af6223
  */
 
 export interface PayloadFieldConfig {
