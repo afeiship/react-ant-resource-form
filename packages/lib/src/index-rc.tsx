@@ -2,7 +2,7 @@
  * @Author: aric 1290657123@qq.com
  * @Date: 2025-10-31 13:20:41
  * @LastEditors: aric 1290657123@qq.com
- * @LastEditTime: 2025-10-31 13:24:38
+ * @LastEditTime: 2025-11-02 14:42:32
  */
 import React, { FC } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -30,7 +30,7 @@ const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
   const [searchParams] = useSearchParams();
   const _searchParams = fromEntries(searchParams as any);
   const _params = nx.compactObject({ ..._searchParams, ...params, ...overrideParams });
-  if (allowFields?.length && allowFields.length > 0) retainKeys(_params, allowFields);
+  if (allowFields?.length) retainKeys(_params, allowFields);
   return <ReactAntResourceForm params={_params} {...rest} />;
 };
 
