@@ -38,6 +38,7 @@ export type ReactAntResourceFormProps = {
   blocker?: boolean;
   mute?: boolean;
   disableHotkeySave?: boolean;
+  disableBackWhenEdit?: boolean;
   initGuard?: (args: InitGuardArgs) => Promise<void>;
   submitGuard?: (args: SubmitGuardArgs) => Promise<void>;
   transformRequest?: (payload: StagePayload) => any;
@@ -85,6 +86,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   public static defaultProps = {
     lang: 'zh-CN',
     disableHotkeySave: false,
+    disableBackWhenEdit: false,
     blocker: false,
     mute: false,
     initGuard: () => Promise.resolve(),
@@ -251,7 +253,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
   };
 
   private onResourceCreate = (values: any) => {
-    const { params, name, submitGuard, onMutate } = this.props;
+    const { params, name, disableBackWhenEdit, submitGuard, onMutate } = this.props;
     const payload = { ...values, ...params };
     const _payload = this.handleStateRequest({ stage: 'create', payload });
     const submitGuardArgs: SubmitGuardArgs = {
@@ -276,7 +278,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
           onMutate?.(mutateArgs);
-          history.back();
+          if (!disableBackWhenEdit) history.back();
         })
         .finally(() => this.setState({ loading: false }));
     });
@@ -387,6 +389,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       transformRequest,
       transformResponse,
       disableHotkeySave,
+      disableBackWhenEdit,
       blocker,
       mute,
       onInit,
