@@ -29,6 +29,7 @@ declare global {
 const CLASS_NAME = 'react-ant-resource-form';
 
 export type ReactAntResourceFormProps = {
+  name?: string;
   lang?: string;
   loading?: boolean;
   okText?: string;
