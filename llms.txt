@@ -1,0 +1,510 @@
+# React Ant Resource Form
+
+> React Ant Resource Form is a powerful Ant Design form builder component designed for resource-based CRUD operations. It provides a comprehensive solution for create and update forms with built-in state management, validation, hotkey support, and lifecycle hooks. Built on top of `@jswork/react-ant-form-schema`, it streamlines the development of resource forms with minimal boilerplate code.
+
+The component intelligently handles form state, detects changes, manages loading states, and provides seamless integration with backend APIs through a standardized naming convention. All features are written in TypeScript with full type safety and designed for enterprise-grade applications.
+
+**Important notes for agents:**
+
+- The component uses a class-based architecture (not functional components) to maintain form instance stability
+- API calls follow a naming convention: `{name}_show`, `{name}_create`, `{name}_update` accessed via `nx.$api`
+- The form automatically detects edit mode based on `params.id` presence
+- Built-in change detection using deep equality comparison to enable/disable save button
+- Supports hotkey save (Ctrl/Cmd + S) by default
+- Provides lifecycle guards (initGuard, submitGuard) for pre-processing validation
+- Emits custom events (`${name}:refetch`) after successful mutations
+- Uses i18n with built-in support for Chinese (zh-CN) and English (en-US)
+
+## Documentation
+
+- [Homepage](https://js.work): Main landing page and project overview
+- [NPM Package](https://www.npmjs.com/package/@jswork/react-ant-resource-form): Package information and version history
+- [GitHub Repository](https://github.com/afeiship/react-ant-resource-form): Source code and contribution guidelines
+
+## Key Features
+
+- **Auto Mode Detection:** Automatically switches between create and update modes based on `params.id`
+- **Change Detection:** Deep equality comparison detects form changes and manages save button state
+- **Hotkey Save:** Built-in Ctrl/Cmd + S keyboard shortcut for quick form submission
+- **Lifecycle Guards:** Pre-submit validation with `initGuard` and `submitGuard` hooks
+- **Data Transformation:** Request/response data transformation via `transformRequest` and `transformResponse`
+- **Field Filtering:** Include/exclude form fields in payload using `payloadFields` config
+- **Event System:** Emits refetch events after successful mutations for list updates
+- **i18n Support:** Built-in Chinese and English locales, extensible for other languages
+- **Loading States:** Automatic loading state management during API operations
+- **Touched Indicator:** Visual indicator (icon) showing unsaved changes in edit mode
+- **Flexible Actions:** Customizable buttons (save/back) or fully custom action buttons
+- **TypeScript First:** Full type definitions with IntelliSense support
+- **Ant Design Integration:** Seamless integration with Ant Design components and styling
+
+## Installation
+
+### Prerequisites
+
+Ensure you have the following dependencies installed:
+
+```bash
+npm install antd @ant-design/icons react react-dom classnames fast-deep-equal
+npm install @jswork/next @jswork/next-compact-object @jswork/react-ant-form-schema
+```
+
+### Install Package
+
+```bash
+npm install @jswork/react-ant-resource-form
+```
+
+or
+
+```bash
+yarn add @jswork/react-ant-resource-form
+```
+
+### Basic Setup
+
+The component requires a global API object to be set up:
+
+```typescript
+import nx from '@jswork/next';
+
+// Define your API methods
+nx.$api = {
+  user_show: (payload) => axios.get(`/api/users/${payload.id}`),
+  user_create: (payload) => axios.post('/api/users', payload),
+  user_update: (payload) => axios.put(`/api/users/${payload.id}`, payload),
+  // ... other resources
+};
+
+// Optional: Set up event system for list refetching
+nx.$event = {
+  emit: (eventName) => {
+    // Your event emitting logic
+  }
+};
+```
+
+## Usage
+
+### Basic Example
+
+```tsx
+import ReactAntResourceForm from '@jswork/react-ant-resource-form';
+
+const UserForm = () => {
+  // For create mode: params = {}
+  // For edit mode: params = { id: '123' }
+  const params = new URLSearchParams(location.search);
+
+  return (
+    <ReactAntResourceForm
+      name="user"
+      params={{ id: params.get('id') }}
+      meta={{
+        fields: [
+          { key: 'name', label: 'Name', type: 'input', required: true },
+          { key: 'email', label: 'Email', type: 'input', required: true },
+          { key: 'role', label: 'Role', type: 'select', options: [...] }
+        ]
+      }}
+    />
+  );
+};
+```
+
+### With Lifecycle Guards
+
+```tsx
+<ReactAntResourceForm
+  name="article"
+  params={{ id: '123' }}
+  meta={{ fields: [...] }}
+  initGuard={({ name, payload, isEdit, params }) => {
+    // Called before fetching detail data (edit mode) or form initialization (create mode)
+    console.log('Initializing form for:', name);
+    return Promise.resolve();
+    // Return Promise.reject() to prevent initialization
+  }}
+  submitGuard={({ name, payload, isEdit, values, params }) => {
+    // Called before form submission
+    // Validate custom logic here
+    if (isEdit && values.status === 'published' && !values.content) {
+      return Promise.reject('Content is required for published articles');
+    }
+    return Promise.resolve();
+  }}
+/>
+```
+
+### With Data Transformation
+
+```tsx
+<ReactAntResourceForm
+  name="product"
+  params={{ id: '123' }}
+  meta={{ fields: [...] }}
+  transformRequest={({ stage, payload }) => {
+    // Transform payload before sending to API
+    if (stage === 'create') {
+      return {
+        ...payload,
+        createdAt: new Date().toISOString()
+      };
+    }
+    return payload;
+  }}
+  transformResponse={({ stage, data }) => {
+    // Transform response data from API
+    if (stage === 'show') {
+      return {
+        ...data,
+        // Convert date strings to Date objects
+        createdAt: new Date(data.createdAt)
+      };
+    }
+    return data;
+  }}
+/>
+```
+
+### With Field Filtering
+
+```tsx
+<ReactAntResourceForm
+  name="comment"
+  params={{ id: '456' }}
+  meta={{ fields: [...] }}
+  // Only include specific fields in payload
+  payloadFields={{
+    include: ['title', 'content', 'categoryId']
+    // OR exclude specific fields
+    // exclude: ['id', 'createdAt', 'updatedAt']
+  }}
+/>
+```
+
+### With Custom Actions
+
+```tsx
+<ReactAntResourceForm
+  name="post"
+  params={{ id: '789' }}
+  meta={{ fields: [...] }}
+  okText="Publish"
+  backText="Cancel"
+  okProps={{ danger: true }}
+  backProps={{ type: 'text' }}
+  onMutate={({ name, payload, isEdit, values }) => {
+    // Called after successful create/update
+    console.log('Mutation successful:', { name, isEdit });
+    // Refresh list, show notifications, etc.
+  }}
+/>
+```
+
+### Fully Custom Actions
+
+```tsx
+<ReactAntResourceForm
+  name="task"
+  params={{ id: '101' }}
+  meta={{ fields: [...] }}
+>
+  <Space>
+    <Button type="primary" htmlType="submit">Save Draft</Button>
+    <Button onClick={handlePublish}>Publish</Button>
+    <Button onClick={handlePreview}>Preview</Button>
+  </Space>
+</ReactAntResourceForm>
+```
+
+### With Custom Styling
+
+```tsx
+<ReactAntResourceForm
+  name="profile"
+  params={{ id: '202' }}
+  meta={{ fields: [...] }}
+  title="Edit Profile"
+  size="small"
+  classNames={{ body: 'custom-body-class' }}
+  className="my-custom-form"
+  blocker={true}  // Disable grid layout from nice-form
+/>
+```
+
+## Props Reference
+
+### Core Props
+
+- `name` (string): Resource name used for API calls (`{name}_show`, `{name}_create`, `{name}_update`)
+- `params` (Record<string, any>): Route parameters, presence of `id` determines edit mode
+- `meta` (object): Form schema definition passed to `@jswork/react-ant-form-schema`
+
+### Behavior Props
+
+- `lang` ('zh-CN' | 'en-US'): Language for button text and messages (default: 'zh-CN')
+- `loading` (boolean): External loading state control
+- `disableHotkeySave` (boolean): Disable Ctrl/Cmd + S hotkey (default: false)
+- `disableBackWhenEdit` (boolean): Don't auto-navigate back after create (default: false)
+- `blocker` (boolean): Prevent grid layout interference (default: false)
+- `mute` (boolean): Suppress success messages (default: false)
+
+### Lifecycle Props
+
+- `onInit` (function): Called with component instance when component initializes
+- `initGuard` (function): Called before form initialization/detail fetch, can reject via Promise
+- `submitGuard` (function): Called before form submission, can reject via Promise
+- `onMutate` (function): Called after successful create/update operation
+
+### Data Transformation Props
+
+- `transformRequest` (function): Transform payload before API call
+- `transformResponse` (function): Transform API response data
+- `payloadFields` (object): Filter payload fields with `{ include, exclude }`
+
+### UI Customization Props
+
+- `title` (ReactNode): Custom card title
+- `extra` (ReactNode): Custom card extra content (replaces back button)
+- `size` ('small' | 'default' | 'large'): Card size
+- `classNames` (object): Ant Design Card classNames
+- `className` (string): Additional CSS class name
+- `okText` (string): Custom submit button text
+- `backText` (string): Custom back button text
+- `okProps` (object): Props passed to submit button
+- `backProps` (object): Props passed to back button
+
+### Children
+
+- `children` (ReactNode): Custom action buttons (replaces default buttons)
+
+## Component Instance Methods
+
+When using `onInit`, you receive the component instance with these methods:
+
+- `formInstance`: Access to Ant Design FormInstance methods
+  - `getFieldsValue()`: Get all field values
+  - `setFieldsValue(values)`: Set field values
+  - `getFieldValue(key)`: Get specific field value
+  - `resetFields()`: Reset all fields
+  - `submit()`: Trigger form submission
+  - And all other Ant Design FormInstance methods
+
+```tsx
+<ReactAntResourceForm
+  name="document"
+  params={{ id: '303' }}
+  meta={{ fields: [...] }}
+  onInit={(instance) => {
+    // Store instance for later access
+    window.formInstance = instance.formInstance;
+  }}
+/>
+```
+
+## Usage Notes for Agents
+
+### API Naming Convention
+
+The component expects APIs to follow this naming pattern accessed via `nx.$api`:
+
+- `{name}_show`: Fetch detail for edit mode (GET)
+- `{name}_create`: Create new resource (POST)
+- `{name}_update`: Update existing resource (PUT/PATCH)
+
+Example:
+```typescript
+nx.$api.user_create = (payload) => axios.post('/api/users', payload);
+nx.$api.user_update = (payload) => axios.put(`/api/users/${payload.id}`, payload);
+nx.$api.user_show = (payload) => axios.get(`/api/users/${payload.id}`);
+```
+
+### Mode Detection
+
+- **Create Mode**: `params.id` is `undefined`, `null`, or empty
+- **Edit Mode**: `params.id` has a value
+
+The component automatically:
+- Sets title to "Create" or "Update"
+- Calls `{name}_show` API in edit mode on mount
+- Shows/hides touched indicator
+- Enables save button appropriately
+
+### Event System
+
+After successful mutations, the component emits:
+
+```typescript
+nx.$event?.emit?.(`${name}:refetch`);
+```
+
+Set up `nx.$event` to handle list refresh:
+
+```typescript
+nx.$event = {
+  emit: (eventName) => {
+    if (eventName === 'user:refetch') {
+      // Refresh user list
+      queryClient.invalidateQueries('users');
+    }
+  }
+};
+```
+
+### Form Validation
+
+Use `submitGuard` for custom validation:
+
+```typescript
+submitGuard: async ({ values, isEdit }) => {
+  if (values.password !== values.confirmPassword) {
+    message.error('Passwords do not match');
+    return Promise.reject('Password mismatch');
+  }
+  if (isEdit && !values.changedField) {
+    return Promise.reject('No changes detected');
+  }
+  return Promise.resolve();
+}
+```
+
+### Field Types
+
+The `meta` prop is passed to `@jswork/react-ant-form-schema`. Supported field types include:
+
+- `input`: Text input
+- `textarea`: Multi-line text input
+- `select`: Dropdown selection
+- `radio`: Radio button group
+- `checkbox`: Checkbox group
+- `date`: Date picker
+- `number`: Number input
+- `upload`: File upload
+- And more (see `@jswork/react-ant-form-schema` documentation)
+
+### Common Patterns
+
+**1. Conditional Fields:**
+
+```tsx
+<ReactAntResourceForm
+  name="order"
+  params={{}}
+  meta={{
+    fields: [
+      { key: 'type', label: 'Type', type: 'select', options: [...] },
+      // Use component lifecycle to show/hide fields conditionally
+    ]
+  }}
+  onInit={(instance) => {
+    // Access form instance for custom logic
+  }}
+/>
+```
+
+**2. Nested Resources:**
+
+```tsx
+<ReactAntResourceForm
+  name="comment"
+  params={{ postId: '123', id: '456' }}
+  meta={{ fields: [...] }}
+  // postId will be included in payload
+/>
+```
+
+**3. Custom Success Handling:**
+
+```tsx
+<ReactAntResourceForm
+  name="settings"
+  params={{ id: '999' }}
+  meta={{ fields: [...] }}
+  mute={true}  // Disable default messages
+  onMutate={({ isEdit }) => {
+    if (isEdit) {
+      notification.success({ message: 'Settings saved!' });
+    } else {
+      notification.success({ message: 'Settings created!' });
+      // Navigate to edit mode
+      history.push('/settings/999');
+    }
+  }}
+/>
+```
+
+## TypeScript Types
+
+```typescript
+import { ReactAntResourceFormProps } from '@jswork/react-ant-resource-form';
+
+interface Props extends ReactAntResourceFormProps {
+  // Your custom props
+}
+```
+
+Key types:
+
+- `ReactAntResourceFormProps`: Main component props interface
+- `InitGuardArgs`: Arguments for initGuard
+  - `name?: string`
+  - `params?: Record<string, any>`
+  - `payload: any`
+  - `isEdit: boolean`
+- `SubmitGuardArgs`: Arguments for submitGuard
+  - `name?: string`
+  - `params?: Record<string, any>`
+  - `payload: any`
+  - `isEdit: boolean`
+  - `values: any`
+- `MutateArgs`: Arguments for onMutate
+  - `name?: string`
+  - `params?: Record<string, any>`
+  - `payload: any`
+  - `isEdit: boolean`
+  - `values: any`
+
+## Development
+
+- **Repository**: https://github.com/afeiship/react-ant-resource-form
+- **License**: MIT
+- **Author**: feizheng (afeiship@gmail.com)
+- **Dependencies**:
+  - Peer: antd, react, react-dom, @ant-design/icons, classnames, fast-deep-equal
+  - Runtime: fromentries
+  - Development: @jswork/react-ant-form-schema, @jswork/next
+
+## Best Practices
+
+1. **Always define `name` prop**: Required for API calls and events
+2. **Use `submitGuard` for validation**: Validate before submission
+3. **Use `transformRequest` for data formatting**: Ensure API payload structure
+4. **Use `payloadFields` to filter sensitive data**: Don't send unnecessary fields
+5. **Set up `nx.$api` before mounting**: Initialize API methods
+6. **Handle `onMutate` for side effects**: Refresh lists, navigate, etc.
+7. **Use `disableBackWhenEdit` for multi-step workflows**: Stay on form after create
+8. **Leverage `blocker` for complex layouts**: Prevent grid layout issues
+9. **Use `mute` with custom notifications**: Provide custom feedback
+10. **Test both create and edit modes**: Ensure both workflows work correctly
+
+## Troubleshooting
+
+**Form not populating in edit mode:**
+- Ensure `params.id` has a value
+- Check that `{name}_show` API is defined in `nx.$api`
+- Verify API returns data in correct format
+
+**Save button disabled:**
+- Check if form has changes (touched state)
+- Verify `loading` is false
+- Ensure form fields have values
+
+**API not being called:**
+- Verify `nx.$api[{name}_create/update]` is defined
+- Check browser console for errors
+- Ensure `submitGuard` resolves successfully
+
+**Hotkey not working:**
+- Check if `disableHotkeySave` is false
+- Verify focus is on the page
+- Check for conflicting keyboard event listeners
