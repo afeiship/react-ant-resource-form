@@ -14,6 +14,7 @@ export type MutateArgs = {
   payload: any;
   isEdit: boolean;
   values: any;
+  data?: any;
 };
 
 export type MsgType = 'info' | 'success' | 'warning' | 'error';

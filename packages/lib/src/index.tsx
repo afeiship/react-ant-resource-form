@@ -242,7 +242,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         .then((res: any) => {
           this.msg(this.t('update_success'));
           this.handleStateResponse({ stage: 'update', data: res });
-          onMutate?.(mutateArgs);
+          onMutate?.({ ...mutateArgs, data: res });
         })
         .finally(() => {
           this.setState({ loading: false });
@@ -277,7 +277,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           this.msg(this.t('create_success'));
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
-          onMutate?.(mutateArgs);
+          onMutate?.({ ...mutateArgs, data: res });
           if (!disableBackWhenEdit) history.back();
         })
         .finally(() => this.setState({ loading: false }));
