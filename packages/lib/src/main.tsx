@@ -6,3 +6,4 @@ import type { ReactAntResourceFormFcProps } from './index-rc';
 export default ReactAntResourceForm;
 export { ReactAntResourceFormFc };
 export type { ReactAntResourceFormFcProps, ReactAntResourceFormProps };
+export * from './types';
