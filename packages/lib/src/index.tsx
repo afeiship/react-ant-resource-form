@@ -51,6 +51,7 @@ export type ReactAntResourceFormProps = {
   title?: CardProps['title'];
   onInit?: (ctx: ReactAntResourceForm) => void;
   onMutate?: (args: MutateArgs) => void;
+  onTouchedChange?: (touched: boolean) => void;
   payloadFields?: { include?: string[]; exclude?: string[] }
 } & ReactAntdFormSchemaProps;
 
@@ -247,7 +248,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
         .finally(() => {
           this.setState({ loading: false });
           this.setInitialValues();
-          this.handleValuesChange(null, this._initialValues);
+          this.props.onTouchedChange?.(false);
         });
     });
   };
@@ -278,6 +279,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           this.handleStateResponse({ stage: 'create', data: res });
           this.formInstance?.resetFields();
           onMutate?.({ ...mutateArgs, data: res });
+          this.props.onTouchedChange?.(false);
           if (!disableBackWhenEdit) history.back();
         })
         .finally(() => this.setState({ loading: false }));
@@ -298,9 +300,11 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
 
   handleValuesChange = (_: any, allValues: any) => {
     if (this._isMounted && this._initialValues !== null) {
+      const newTouched = !deepEqual(this._initialValues, allValues);
       this.setState({
-        touched: !deepEqual(this._initialValues, allValues),
+        touched: newTouched,
       });
+      this.props.onTouchedChange?.(newTouched);
     }
   };
 
@@ -354,6 +358,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
           .finally(() => {
             this.setState({ loading: false });
             this.setInitialValues();
+            this.props.onTouchedChange?.(false);
           });
       });
     } else {
@@ -366,6 +371,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       initGuard?.(initGuardArgs).then(() => {
         this.setInitialValues();
         this.setState({ loading: false });
+        this.props.onTouchedChange?.(false);
       });
     }
   }

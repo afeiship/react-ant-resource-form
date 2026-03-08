@@ -9,6 +9,10 @@ export const API_FORM_LOCALES = {
     submit: '提交',
     back: '返回',
     no_change: '没有修改',
+    blocker_title: '确认离开',
+    blocker_message: '您有未保存的更改，确定要离开吗？',
+    blocker_confirm: '离开',
+    blocker_cancel: '取消',
   },
   'en-US': {
     create: 'Create',
@@ -20,5 +24,9 @@ export const API_FORM_LOCALES = {
     submit: 'Submit',
     back: 'Back',
     no_change: 'No change',
+    blocker_title: 'Confirm Leave',
+    blocker_message: 'You have unsaved changes. Are you sure you want to leave?',
+    blocker_confirm: 'Leave',
+    blocker_cancel: 'Cancel',
   },
 };
