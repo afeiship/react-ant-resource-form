@@ -4,7 +4,7 @@
  * @LastEditors: aric 1290657123@qq.com
  * @LastEditTime: 2025-11-02 14:42:32
  */
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useCallback } from 'react';
 import { useBlocker, useParams, useSearchParams } from 'react-router-dom';
 import fromEntries from 'fromentries';
 import nx from '@jswork/next';
@@ -23,14 +23,14 @@ const retainKeys = (obj: Record<string, any>, keys: string[]) => {
 
 export type ReactAntResourceFormFcProps = ReactAntResourceFormProps & {
   allowFields?: string[];
-  /** 启用路由离开拦截（当表单有未保存更改时） */
-  enableBlocker?: boolean;
+  /** 禁用路由离开拦截（当表单有未保存更改时） */
+  disableBlocker?: boolean;
   /** 拦截确认消息 */
   blockerMessage?: string;
 }
 
 const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
-  const { params: overrideParams, allowFields, enableBlocker, blockerMessage, lang = 'zh-CN', ...rest } = props;
+  const { params: overrideParams, allowFields, disableBlocker, blockerMessage, lang = 'zh-CN', ...rest } = props;
   const params = useParams();
   const [searchParams] = useSearchParams();
   const [touched, setTouched] = useState(false);
@@ -41,15 +41,17 @@ const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
   if (allowFields?.length) retainKeys(_params, allowFields);
 
   // 获取翻译文本
-  const t = (key: string) => API_FORM_LOCALES[lang]?.[key] || API_FORM_LOCALES['zh-CN'][key];
+  const t = useCallback((key: string) => {
+    return API_FORM_LOCALES[lang]?.[key] || API_FORM_LOCALES['zh-CN'][key];
+  }, [lang]);
 
-  // 路由拦截器
+  // 路由拦截器（默认启用，disableBlocker=true 时禁用）
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }: any) => {
+    useCallback(({ currentLocation, nextLocation }: any) => {
       const hasChanges = Boolean(touched);
       const isDifferentPath = currentLocation.pathname !== nextLocation.pathname;
-      return enableBlocker === true && hasChanges && isDifferentPath;
-    },
+      return disableBlocker !== true && hasChanges && isDifferentPath;
+    }, [touched, disableBlocker]),
   );
 
   // 处理拦截状态变化
@@ -58,16 +60,16 @@ const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
   }
 
   // 确认离开
-  const handleConfirmLeave = () => {
+  const handleConfirmLeave = useCallback(() => {
     setShowBlockerModal(false);
     blocker.proceed?.();
-  };
+  }, [blocker]);
 
   // 取消离开
-  const handleCancelLeave = () => {
+  const handleCancelLeave = useCallback(() => {
     setShowBlockerModal(false);
     blocker.reset?.();
-  };
+  }, [blocker]);
 
   return (
     <>
