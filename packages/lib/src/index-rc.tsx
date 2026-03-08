@@ -54,20 +54,23 @@ const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
     }, [touched, disableBlocker]),
   );
 
-  // 处理拦截状态变化
-  if (blocker.state === 'blocked' && !showBlockerModal) {
-    setShowBlockerModal(true);
-  }
+  // 使用 useEffect 处理拦截状态变化（避免在 render 中 setState）
+  React.useEffect(() => {
+    if (blocker.state === 'blocked' && !showBlockerModal) {
+      setShowBlockerModal(true);
+    } else if ((blocker.state === 'proceeding' || blocker.state === 'unblocked') && showBlockerModal) {
+      // 当 blocker 进入 proceeding 或 unblocked 状态时，关闭 Modal
+      setShowBlockerModal(false);
+    }
+  }, [blocker.state, showBlockerModal]);
 
   // 确认离开
   const handleConfirmLeave = useCallback(() => {
-    setShowBlockerModal(false);
     blocker.proceed?.();
   }, [blocker]);
 
   // 取消离开
   const handleCancelLeave = useCallback(() => {
-    setShowBlockerModal(false);
     blocker.reset?.();
   }, [blocker]);
 
@@ -76,7 +79,13 @@ const ReactAntResourceFormFc: FC<ReactAntResourceFormFcProps> = (props) => {
       <ReactAntResourceForm
         params={_params}
         lang={lang}
-        onTouchedChange={setTouched}
+        onTouchedChange={(touched) => {
+          setTouched(touched);
+          // 当表单保存成功后，如果有被拦截的导航且表单不再有更改，继续导航
+          if (!touched && blocker.state === 'blocked') {
+            blocker.proceed?.();
+          }
+        }}
         {...rest}
       />
       <Modal
