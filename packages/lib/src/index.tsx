@@ -404,6 +404,7 @@ class ReactAntResourceForm extends Component<ReactAntResourceFormProps, IState> 
       submitGuard,
       loading,
       payloadFields,
+      onTouchedChange,
       ...rest
     } = this.props;
 
